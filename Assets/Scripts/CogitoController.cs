@@ -9,35 +9,53 @@ using UnityEngine.UI;
 
 public class CogitoController : MonoBehaviour
 {
+    // general settings
     public float _deltaMovement = 0.83f;
-    private float _xCenter;
-    private float _yCenter;
-    private float _xCurrent;
     public float _width_screen = 9.3f;
-    private int _whichButton;
+    private short level; // 0-easy, 1-medium, 2-hard
+    private bool playing;
+    
+    //Timers
     public float BallTime = 3.0f;
     private float _ballTime;
     public float MatrixTime = 34.0f;
     private float _matrixTime;
     private float _deltaTime;
-    private int[] _xPositions = new[] {1,2,3,4,5};  //from -6 to 6
-    private int _ballPosition = 0;
-    private short _idx_xPosition = 0;
     private float _startBallTime;
+    
+    // ball
+    private float _xCenter;
+    private float _yCenter;
+    private float _xCurrent;
+    private short[] _xPositions = new short[] {1,2,3,4,5};  //from -6 to 6
+    private short _ballPosition = 0;
+    private short _idx_xPosition = 0;
+    private int _whichButton;
+    
+    // visual pattern
     public GameObject Matrix;
     public GameObject MatrixAnswer;
     private Image[] _listCells;
-    // patterns
     private static bool[] _pattern_0 = new bool[16] {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
     private static bool[] _pattern_1 = new bool[16] {false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true};
     private List<bool[]> _list_patterns = new List<bool[]>(){_pattern_0, _pattern_1};
     private bool[] _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
     private short _kPattern = 0;
-    private bool playing;
     
+    //auditory
+    public AudioSource audioData;
+    
+    // haptic
+    //vibration. Pattern has to be: off, on, off, on time
+    private const int Vt = 50; // vibrationTime
+    private const int Vd = 0;  // vibrationDelay: delay trying to synchronize audio and vibration pattern
+    private readonly List<long[]> _vibrationPatterns = new List<long[]>(){ new long[] {0}, new long[] {Vd, Vt}, new long[] {Vd, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} };
     // Start is called before the first frame update
     void Start()
     {
+        Vibration.Init ();
+        
+        level = 2;
         // when start method, the game has not started
         playing = false;
         //
@@ -53,6 +71,9 @@ public class CogitoController : MonoBehaviour
         // initial ball position
         _xCenter = transform.position.x;
         _yCenter = transform.position.y;
+        
+        audioData = GetComponent<AudioSource>();
+        
         /*
         // initial clock times
         _ballTime = BallTime;
@@ -147,6 +168,16 @@ public class CogitoController : MonoBehaviour
     private void NextBallPosition()
     {
         _ballPosition = _xPositions[_idx_xPosition];
+        
+        //playing audio
+        if (level == 2)
+        {
+            Vibration.Vibrate ( _vibrationPatterns[_ballPosition], -1 );
+            
+            audioData.Play(0);
+            // to add delay for 100ms!!
+        }
+        
         transform.position = new Vector3(_xCenter + _ballPosition* _deltaMovement, _yCenter, 0);
         if (_idx_xPosition < _xPositions.Length-1 )
         {
