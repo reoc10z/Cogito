@@ -48,7 +48,7 @@ public class CogitoController : MonoBehaviour
     // haptic
     //vibration. Pattern has to be: off, on, off, on time
     private const int Vt = 50; // vibrationTime
-    private const int Vd = 0;  // vibrationDelay: delay trying to synchronize audio and vibration pattern
+    private const int Vd = 500;  // vibrationDelay: delay trying to synchronize audio and vibration pattern
     private readonly List<long[]> _vibrationPatterns = new List<long[]>(){ new long[] {0}, new long[] {Vd, Vt}, new long[] {Vd, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} };
     // Start is called before the first frame update
     void Start()
@@ -172,10 +172,15 @@ public class CogitoController : MonoBehaviour
         //playing audio
         if (level == 2)
         {
-            Vibration.Vibrate ( _vibrationPatterns[_ballPosition], -1 );
+            if (_ballPosition != 0)
+            {
+                // haptic stimulus
+                Vibration.Vibrate ( _vibrationPatterns[_ballPosition], -1 );
+                //auditory stimulus
+                audioData.Play(0);
+                // TODO: to add delay for 100ms!!
+            }
             
-            audioData.Play(0);
-            // to add delay for 100ms!!
         }
         
         transform.position = new Vector3(_xCenter + _ballPosition* _deltaMovement, _yCenter, 0);
