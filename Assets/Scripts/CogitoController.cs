@@ -16,7 +16,7 @@ public class CogitoController : MonoBehaviour
     private bool _playing;
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
-    public Button Btn_OK;
+    public Button BtnStartGame;
     
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -34,8 +34,8 @@ public class CogitoController : MonoBehaviour
     // ball
     public GameObject Ball;
     public GameObject Ruler;
-    private float _xCenter;
-    private float _yCenter;
+    private float _center_intialX;
+    private float _center_intialY;
     private float _xCurrent;
     private short[] _xPositions = new short[] {1,2,3,4,5};  //from -6 to 6
     private short _ballPosition = 0;
@@ -44,16 +44,21 @@ public class CogitoController : MonoBehaviour
     private Vector3 _nextPosition;
     private bool _newPosition;
     public GameObject ArrowsPanel;
+    private bool _allowBallMovement;
     
-    // visual pattern
+    // question pattern: shown pattern to be learnt 
     public GameObject MatrixQuestion;
-    public GameObject MatrixAnswer;
-    private Image[] _listCells;
+    private Image[] _listQuestionCells;
     private static bool[] _pattern_0 = new bool[16] {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
     private static bool[] _pattern_1 = new bool[16] {false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true};
     private List<bool[]> _list_patterns = new List<bool[]>(){_pattern_0, _pattern_1};
-    private bool[] _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
     private short _kPattern = 0;
+    
+    // answer pattern: pattern to mark answers
+    public GameObject MatrixAnswer;
+    private Toggle[] _listAnswerCells;
+    private bool[] _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+    public Button Btn_OK;
     
     //auditory
     public AudioSource[] audioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
@@ -82,7 +87,6 @@ public class CogitoController : MonoBehaviour
     {
         _widthScreen = Screen.width;
         print(_widthScreen);
-        //height = Screen.height;
     }
     
     // Start is called before the first frame update
@@ -91,37 +95,40 @@ public class CogitoController : MonoBehaviour
         Vibration.Init ();
         
         level = 2;
+        // general settingss
         // when start method, the game has not started
         _playing = false;
-        //
         _ballDirection = 0;
-        Btn_OK.gameObject.SetActive(false);
+        BtnStartGame.onClick.AddListener(BtnStartStop);
         
         //timers
         _timeSinceEndStimulus = _timer100ms;
         _timerIsRunning = false;
         
         // question pattern
-        // pattern's elements
-        _listCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
-        
-        //turn off pattern
-        MatrixQuestion.SetActive(false);
+        _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
+        MatrixQuestion.SetActive(false); //turn off pattern
         
         // answer pattern
-        MatrixAnswer.SetActive(false);
+        _listAnswerCells = MatrixAnswer.GetComponentsInChildren<Toggle>().ToArray();
         Btn_OK.onClick.AddListener(BtnOKanswer);
-        
+        MatrixAnswer.SetActive(false);
+        Btn_OK.gameObject.SetActive(false);
+
         // enlist next pattern
-        NextPattern(_listCells, _list_patterns[_kPattern]);
+        NextPattern(_listQuestionCells, _list_patterns[_kPattern]);
         _kPattern += 1;
         
         // ball
         // initial ball position
         _newPosition = false;
-        _xCenter = Ball.transform.position.x;
-        _yCenter = Ball.transform.position.y;
+        _allowBallMovement = false;
+        _center_intialX = Ball.transform.position.x;
+        _center_intialY = Ball.transform.position.y;
         _deltaMovement = _widthScreen / 15;
+        Ruler.SetActive(false);
+        Ball.SetActive(false);
+        ArrowsPanel.SetActive(false);
         
         // audio
         audioPulses = GetComponents<AudioSource>();
@@ -146,7 +153,7 @@ public class CogitoController : MonoBehaviour
         }
         else
         {
-            if (_newPosition)
+            if (_newPosition && _allowBallMovement)
             {
                 
                 if (Time.time - _timeSinceEndStimulus > _timer100ms - 0.001f)
@@ -163,11 +170,11 @@ public class CogitoController : MonoBehaviour
         
         _xCurrent = Ball.transform.position.x;
         
-        if (_xCurrent - _xCenter > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
+        if (_allowBallMovement && _xCurrent - _center_intialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
         {
             // move left
             MoveBall(_xCurrent, -1);
-        } else if (_xCurrent - _xCenter < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
+        } else if (_allowBallMovement && _xCurrent - _center_intialX < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
         {
             // move right
             MoveBall(_xCurrent, +1);
@@ -187,7 +194,7 @@ public class CogitoController : MonoBehaviour
     {
         if (!_playing)
         {
-            BtnStartStop();
+            //BtnStartStop();
         }
         else
         {
@@ -202,9 +209,9 @@ public class CogitoController : MonoBehaviour
                 else
                 {
                     // after click start, game will wait 2 seconds to start
-                    _timerBall = BallTimeCycle; // 3 seconds
                     _nFrame = 1;
                     _timerFrame = _timesFrame[_nFrame];
+                    _timerBall = BallTimeCycle; // 3 seconds
                     BallController(true);
                     
                 }
@@ -298,10 +305,13 @@ public class CogitoController : MonoBehaviour
                 }
                 else
                 {
-                    _timerBall = BallTimeCycle;
-                    BallController(true);
                     MatrixAnswerController(false);
-                    _nFrame = 1;
+                    //_timerBall = BallTimeCycle;
+                    //BallController(true);
+                    Ruler.SetActive(true);
+                    Ball.SetActive(true);
+                    ArrowsPanel.SetActive(true);
+                    _nFrame = 0;
                     _timerFrame = _timesFrame[_nFrame];
                 }
             } else if (_nFrame == 5)
@@ -318,11 +328,16 @@ public class CogitoController : MonoBehaviour
             Ball.SetActive(true);
             Ruler.SetActive(true);
             ArrowsPanel.SetActive(true);
+            _allowBallMovement = true;
             NextBallPosition();
             _startBallTime = Time.time;
         }
         else
         {
+            print("reset A: " + Ball.transform.position.x);
+            Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
+            print("reset B: " + Ball.transform.position.x);
+            _allowBallMovement = false;
             Ball.SetActive(false);
             Ruler.SetActive(false);
             ArrowsPanel.SetActive(false);
@@ -368,7 +383,7 @@ public class CogitoController : MonoBehaviour
             }
         }
         
-        _nextPosition = new Vector3(_xCenter + _ballPosition* _deltaMovement, _yCenter, 0);
+        _nextPosition = new Vector3(_center_intialX + _ballPosition* _deltaMovement, _center_intialY, 0);
         _newPosition = true;
         
         if (_idPositionX < _xPositions.Length-1 )
@@ -387,17 +402,15 @@ public class CogitoController : MonoBehaviour
     // typeMovement: +1(right) ; -1(left)
     private void MoveBall(float xCurrent, short typeMovement)
     {
-        print("heereee");
         if (typeMovement > 0)
         {
             // right
-            print("yepeeee: ");
-            Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _yCenter, 0);
+            Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
             _ballPosition += 1; 
         } else if (typeMovement < 0)
         {
             // left
-            Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _yCenter, 0);
+            Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
             _ballPosition -= 1; 
         }
 
@@ -421,7 +434,7 @@ public class CogitoController : MonoBehaviour
             // hide pattern
             MatrixQuestion.SetActive(false);
             // enlist next pattern
-            NextPattern(_listCells, _list_patterns[_kPattern]);
+            NextPattern(_listQuestionCells, _list_patterns[_kPattern]);
             _kPattern += 1;
             if (_kPattern == 2)
             {
@@ -442,6 +455,12 @@ public class CogitoController : MonoBehaviour
         {
             MatrixAnswer.SetActive(false);
             Btn_OK.gameObject.SetActive(false);
+            // reset cells to true (white)
+            _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            foreach (Toggle cell in _listAnswerCells)
+            {
+                cell.isOn = true;
+            }
         }
         
     }
@@ -473,26 +492,17 @@ public class CogitoController : MonoBehaviour
         _nFrame = 0;
         _timerFrame = _timesFrame[_nFrame];
         _playing = !_playing;
-        
-        // BORRAR quizá lo siguiente:
-        // this will launch multiple iterations
-        // InvokeRepeating("LaunchIteration", 2.0f, 34.0f);
-        
+        BtnStartGame.gameObject.SetActive(false);
+        Ruler.SetActive(true);
+        Ball.SetActive(true);
+        ArrowsPanel.SetActive(true);
+
     }
 
     private void BtnOKanswer()
     {
         Btn_OK.interactable = false;
         MatrixAnswer.SetActive(false);
-    }
-
-    private float _timeToLaunchMatrixQuestion = 10.0f;
-    private float _timeToLaunchMatrixAnswer = 24.0f;
-    private void LaunchIteration()
-    {
-        // timer for methods, i.e. tasks
-        InvokeRepeating("BallController",   0.0f,BallTimeCycle);
-        _timerIsRunning = true;
     }
 
     public void BtnAnswerPattern(int id)
