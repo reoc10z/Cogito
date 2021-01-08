@@ -21,8 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Imgs/ruler.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Imgs/ruler.png.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
     </list>
@@ -85,6 +83,8 @@
       <workItem from="1610030469843" duration="6175000" />
       <workItem from="1610037106412" duration="5151000" />
       <workItem from="1610052347610" duration="10824000" />
+      <workItem from="1610063638815" duration="956000" />
+      <workItem from="1610064804735" duration="318000" />
     </task>
     <servers />
   </component>

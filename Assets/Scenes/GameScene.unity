@@ -1072,7 +1072,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 971143948}
         m_MethodName: CheckVibrate
         m_Mode: 1
         m_Arguments:
@@ -4761,7 +4761,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15fa70ad13c94a2bb6069d7d60dfc06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OK_answer: {fileID: 438364742}
+  Btn_OK: {fileID: 438364743}
   BallTimeCycle: 3
   MatrixTimeCycle: 34
   _timesFrame: 020000000a0000000a000000040000000a000000
@@ -8361,7 +8361,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 971143948}
         m_MethodName: CheckPlaySound
         m_Mode: 1
         m_Arguments:

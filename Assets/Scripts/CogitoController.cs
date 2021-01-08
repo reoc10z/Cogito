@@ -16,7 +16,7 @@ public class CogitoController : MonoBehaviour
     private bool _playing;
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
-    public GameObject OK_answer;
+    public Button Btn_OK;
     
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -95,19 +95,23 @@ public class CogitoController : MonoBehaviour
         _playing = false;
         //
         _ballDirection = 0;
-        OK_answer.SetActive(false);
+        Btn_OK.gameObject.SetActive(false);
         
         //timers
         _timeSinceEndStimulus = _timer100ms;
         _timerIsRunning = false;
         
-        // pattern
+        // question pattern
         // pattern's elements
         _listCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
         
         //turn off pattern
         MatrixQuestion.SetActive(false);
+        
+        // answer pattern
         MatrixAnswer.SetActive(false);
+        Btn_OK.onClick.AddListener(BtnOKanswer);
+        
         // enlist next pattern
         NextPattern(_listCells, _list_patterns[_kPattern]);
         _kPattern += 1;
@@ -431,12 +435,13 @@ public class CogitoController : MonoBehaviour
         if (on)
         {
             MatrixAnswer.SetActive(true);
-            OK_answer.SetActive(true);
+            Btn_OK.gameObject.SetActive(true);
+            Btn_OK.interactable = true;
         }
         else
         {
             MatrixAnswer.SetActive(false);
-            OK_answer.SetActive(false);
+            Btn_OK.gameObject.SetActive(false);
         }
         
     }
@@ -473,6 +478,12 @@ public class CogitoController : MonoBehaviour
         // this will launch multiple iterations
         // InvokeRepeating("LaunchIteration", 2.0f, 34.0f);
         
+    }
+
+    private void BtnOKanswer()
+    {
+        Btn_OK.interactable = false;
+        MatrixAnswer.SetActive(false);
     }
 
     private float _timeToLaunchMatrixQuestion = 10.0f;
