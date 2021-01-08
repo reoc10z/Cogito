@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,7 +85,9 @@
       <workItem from="1610063638815" duration="956000" />
       <workItem from="1610064804735" duration="318000" />
       <workItem from="1610115767429" duration="6642000" />
-      <workItem from="1610123143783" duration="1111000" />
+      <workItem from="1610123143783" duration="1748000" />
+      <workItem from="1610125203919" duration="1886000" />
+      <workItem from="1610135358933" duration="7039000" />
     </task>
     <servers />
   </component>

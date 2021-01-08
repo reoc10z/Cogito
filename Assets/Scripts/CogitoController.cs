@@ -6,9 +6,11 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 //using UnityEngine.UIElements;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 public class CogitoController : MonoBehaviour
 {
+    
     // general settings
     private float _deltaMovement;
     private float _widthScreen;
@@ -17,6 +19,7 @@ public class CogitoController : MonoBehaviour
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
     public Button BtnStartGame;
+    private int _nFrame = 0;
     
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -28,8 +31,10 @@ public class CogitoController : MonoBehaviour
     private readonly float _timer100ms = 0.100f; // 100 ms
     private float _timeSinceEndStimulus;
     private float _timeSinceAudioPlay;
-    private bool _timerIsRunning = true;
-    public int[] _timesFrame = new int[] {2,5,5,2,5}; //{2, 10, 10, 4, 10};
+    public int[] _timesFrame = new int[] {2, 10, 10, 4, 10}; // stage0, stage1, stage2, ...
+    private float _timerFrame;
+    private float _timerBall;
+    public Stopwatch zeit = new Stopwatch();
 
     // ball
     public GameObject Ball;
@@ -61,7 +66,7 @@ public class CogitoController : MonoBehaviour
     public Button Btn_OK;
     
     //auditory
-    public AudioSource[] audioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
+    public AudioSource[] AudioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
     private readonly float _intrinsic_audioDelay = 50f; // ms
     private bool _isAudio;
     
@@ -86,7 +91,7 @@ public class CogitoController : MonoBehaviour
     void Awake()
     {
         _widthScreen = Screen.width;
-        print(_widthScreen);
+        //print(_widthScreen);
     }
     
     // Start is called before the first frame update
@@ -103,8 +108,7 @@ public class CogitoController : MonoBehaviour
         
         //timers
         _timeSinceEndStimulus = _timer100ms;
-        _timerIsRunning = false;
-        
+                
         // question pattern
         _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
         MatrixQuestion.SetActive(false); //turn off pattern
@@ -131,7 +135,7 @@ public class CogitoController : MonoBehaviour
         ArrowsPanel.SetActive(false);
         
         // audio
-        audioPulses = GetComponents<AudioSource>();
+        AudioPulses = GetComponents<AudioSource>();
         _isAudio = false;
     } 
 
@@ -140,14 +144,14 @@ public class CogitoController : MonoBehaviour
     {
         if (_isAudio)
         {
-            if (Time.time - _timeSinceAudioPlay > audioPulses[0].clip.length)
+            if (Time.time - _timeSinceAudioPlay > AudioPulses[_ballPosition-1].clip.length)
             {
-                if (!audioPulses[0].isPlaying)
+                if (!AudioPulses[_ballPosition-1].isPlaying)
                 {
                     _timeSinceEndStimulus = Time.time;
                     _isAudio = false;
                     
-                    print("finish: " + _timeSinceEndStimulus.ToString("f6"));
+                    //print("finish: " + _timeSinceEndStimulus.ToString("f6"));
                 }
             }
         }
@@ -163,7 +167,7 @@ public class CogitoController : MonoBehaviour
                     
                     cellSound.color = new Color(1, 1, 1);
                     cellVibration.color = new Color(1, 1, 1);
-                    print("ball: " + Time.time.ToString("f6"));
+                    //print("ball: " + Time.time.ToString("f6"));
                 }
             }
         }
@@ -184,14 +188,10 @@ public class CogitoController : MonoBehaviour
 
     }
 
-    private int _nFrame = 0;
-    private float _timerFrame;
-    private float _timerBall;
-    
-    
-    // Update is called once per frame
+   // Update is called once per frame
     void Update()
     {
+        zeit.Start();
         if (!_playing)
         {
             //BtnStartStop();
@@ -306,8 +306,6 @@ public class CogitoController : MonoBehaviour
                 else
                 {
                     MatrixAnswerController(false);
-                    //_timerBall = BallTimeCycle;
-                    //BallController(true);
                     Ruler.SetActive(true);
                     Ball.SetActive(true);
                     ArrowsPanel.SetActive(true);
@@ -319,6 +317,8 @@ public class CogitoController : MonoBehaviour
                 
             }
         }
+        
+        print(zeit.Elapsed);
     }
 
     private void BallController(bool on)
@@ -334,9 +334,9 @@ public class CogitoController : MonoBehaviour
         }
         else
         {
-            print("reset A: " + Ball.transform.position.x);
+            //print("reset A: " + Ball.transform.position.x);
             Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
-            print("reset B: " + Ball.transform.position.x);
+            //print("reset B: " + Ball.transform.position.x);
             _allowBallMovement = false;
             Ball.SetActive(false);
             Ruler.SetActive(false);
@@ -348,6 +348,7 @@ public class CogitoController : MonoBehaviour
     {
         if (_toVibrate)
         {
+            //print("vibration: " + Time.time.ToString("f6"));
             cellVibration.color = new Color(0, 0, 0);
             Vibration.Vibrate(vibrationPattern, -1);
         }
@@ -357,17 +358,18 @@ public class CogitoController : MonoBehaviour
     {
         if (_toPlaySound)
         {
+            //print("auditory: " + Time.time.ToString("f6"));
             _timeSinceAudioPlay = Time.time;
             cellSound.color = new Color(0, 0, 0);
             _audio.Play(0);
             _isAudio = true;
-            print("start: " + Time.time.ToString("f6"));
+            //print("start: " + Time.time.ToString("f6"));
         }
     }
     
     private void NextBallPosition()
     {
-        print("next ball position");
+        //print("next ball position");
         _ballPosition = _xPositions[_idPositionX];
         
         //stimuli
@@ -378,7 +380,7 @@ public class CogitoController : MonoBehaviour
                 // haptic stimulus
                 Vibrate(_vibrationPatterns[_ballPosition-1]);
                 //auditory stimulus
-                PlaySound(audioPulses[_ballPosition-1]);
+                PlaySound(AudioPulses[_ballPosition-1]);
                 // TODO: to add delay for 100ms!!
             }
         }
@@ -417,7 +419,7 @@ public class CogitoController : MonoBehaviour
         if (_ballPosition == 0)
         {
             var elapsedTime = Time.time - _startBallTime;
-            print(_idPositionX + "- elapsed time: " + elapsedTime);
+            //print(_idPositionX + "- elapsed time: " + elapsedTime);
         }
         
     }
@@ -508,7 +510,7 @@ public class CogitoController : MonoBehaviour
     public void BtnAnswerPattern(int id)
     {
         _answerPattern[id] = !_answerPattern[id];
-        print(id + " : " + _answerPattern[id]);
+        //print(id + " : " + _answerPattern[id]);
     }
 
     public void CheckVibrate()
