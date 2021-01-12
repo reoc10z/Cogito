@@ -4542,22 +4542,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BtnStartGame: {fileID: 901185274}
-  BallTimeCycle: 3
-  MatrixTimeCycle: 34
-  _timesFrame: 020000000a0000000a000000040000000a000000
+  BallTimeCycle: 3000
+  MatrixTimeCycle: 34000
+  _timesFrame: d00700001027000010270000a00f000010270000
   Ball: {fileID: 535144240}
   Ruler: {fileID: 421415988}
   ArrowsPanel: {fileID: 1819092820}
   MatrixQuestion: {fileID: 2118382442}
   MatrixAnswer: {fileID: 704607947}
   Btn_OK: {fileID: 438364743}
-  audioPulses:
-  - {fileID: 971143947}
-  - {fileID: 971143946}
-  - {fileID: 971143945}
-  - {fileID: 971143944}
-  - {fileID: 971143943}
-  - {fileID: 971143942}
+  AudioPulses:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   cellSound: {fileID: 1123772137}
   cellVibration: {fileID: 453256225}
 --- !u!222 &971143949
