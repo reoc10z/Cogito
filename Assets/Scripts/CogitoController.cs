@@ -7,6 +7,7 @@ using UnityEngine;
 //using UnityEngine.UIElements;
 using UnityEngine.UI;
 using System.Diagnostics;
+using System.IO;
 
 public class CogitoController : MonoBehaviour
 {
@@ -14,27 +15,29 @@ public class CogitoController : MonoBehaviour
     // general settings
     private float _deltaMovement;
     private float _widthScreen;
-    private short level; // 0-easy, 1-medium, 2-hard
+    private short _level; // 0-easy, 1-medium, 2-hard
     private bool _playing;
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
     public Button BtnStartGame;
-    private int _nFrame = 0;
+    private int _nStage = 0;
+    private string _pathLogFile;
+    private string _logs = "";
     
     //Timers
     public float BallTimeCycle = 3.0f;
     private float _ballTime;
     public float MatrixTimeCycle = 34.0f;
     private float _matrixTime;
-    private float _deltaTime;
-    private float _startBallTime;
-    private readonly float _timer100ms = 0.100f; // 100 ms
-    private float _timeSinceEndStimulus;
+    private readonly float _delayStimuliMs = 100; // 100 ms
+    private long _timeSinceEndStimulus;
     private float _timeSinceAudioPlay;
-    public int[] _timesFrame = new int[] {2, 10, 10, 4, 10}; // stage0, stage1, stage2, ...
+    private float _timeSinceVibrationStarts;
+    public int[] _timesFrame = new int[] {2000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
     private float _timerFrame;
     private float _timerBall;
-    public Stopwatch zeit = new Stopwatch();
+    private Stopwatch _zeit = new Stopwatch();
+    private long _deltaFramesTime;
 
     // ball
     public GameObject Ball;
@@ -44,7 +47,8 @@ public class CogitoController : MonoBehaviour
     private float _xCurrent;
     private short[] _xPositions = new short[] {1,2,3,4,5};  //from -6 to 6
     private short _ballPosition = 0;
-    private short _idPositionX = 0;
+    private short _idxPositionX = 0;
+    private int _idxStimuli = 0;
     private int _ballDirection;
     private Vector3 _nextPosition;
     private bool _newPosition;
@@ -72,7 +76,7 @@ public class CogitoController : MonoBehaviour
     
     // haptic
     //vibration. Pattern has to be: off, on, off, on time
-    private const int Vd = 0;  // vibrationDelay: delay trying to synchronize audio and vibration pattern
+    private const int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
     private const int Vt = 50; // vibrationTime
     private readonly List<long[]> _vibrationPatterns = new List<long[]>()
     {
@@ -83,6 +87,8 @@ public class CogitoController : MonoBehaviour
         new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 5 pulses
         new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} // 6 pulses
     };
+    private long[] _vibrationTimePatterns; // array that includes the time length for each item in _vibratioPatterns
+    private bool _isVibration;
     
     //others to remove later
     public Image cellSound;
@@ -90,8 +96,19 @@ public class CogitoController : MonoBehaviour
     
     void Awake()
     {
+        //Path of the file
+        _pathLogFile = Application.dataPath + "/Log.txt";
+        //Create File if it doesn't exist
+        if (!File.Exists(_pathLogFile)) {
+            File.WriteAllText(_pathLogFile, "\n\n Log File \n" + "starts at: " + System.DateTime.Now + "\n\n");
+        }
+        else
+        {
+            //append msg to log for adding later to log file
+            _logs += "\n\n Log File \n" + "starts at: " + System.DateTime.Now + "\n\n";
+        }
+        
         _widthScreen = Screen.width;
-        //print(_widthScreen);
     }
     
     // Start is called before the first frame update
@@ -99,15 +116,15 @@ public class CogitoController : MonoBehaviour
     {
         Vibration.Init ();
         
-        level = 2;
+        _level = 2;
         // general settingss
         // when start method, the game has not started
         _playing = false;
         _ballDirection = 0;
         BtnStartGame.onClick.AddListener(BtnStartStop);
-        
+
         //timers
-        _timeSinceEndStimulus = _timer100ms;
+        _timeSinceEndStimulus = 0;
                 
         // question pattern
         _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
@@ -136,91 +153,103 @@ public class CogitoController : MonoBehaviour
         
         // audio
         AudioPulses = GetComponents<AudioSource>();
+        // this variable will contain the duration each vibration pattern in ms. It includes the delay value used to synchronise audio and haptics stimuli
+        _vibrationTimePatterns = new long[_vibrationPatterns.Count];
+        int k = 0;
+        foreach (long[] vP in _vibrationPatterns)
+        {
+            _vibrationTimePatterns[k] = vP.Sum();
+            k += 1;
+        }
         _isAudio = false;
-    } 
-
-    // physics of object
+        
+        // haptic
+        _isVibration = false;
+        
+        // global timer 
+        _zeit.Start();
+        //_currentTime = zeit.ElapsedMilliseconds;
+        //toLog(_currentTime + ": app starts");
+    }
+    
     void FixedUpdate()
     {
-        if (_isAudio)
-        {
-            if (Time.time - _timeSinceAudioPlay > AudioPulses[_ballPosition-1].clip.length)
-            {
-                if (!AudioPulses[_ballPosition-1].isPlaying)
-                {
-                    _timeSinceEndStimulus = Time.time;
-                    _isAudio = false;
-                    
-                    //print("finish: " + _timeSinceEndStimulus.ToString("f6"));
-                }
-            }
-        }
-        else
-        {
-            if (_newPosition && _allowBallMovement)
-            {
-                
-                if (Time.time - _timeSinceEndStimulus > _timer100ms - 0.001f)
-                {
-                    Ball.transform.position = _nextPosition;
-                    _newPosition = false;
-                    
-                    cellSound.color = new Color(1, 1, 1);
-                    cellVibration.color = new Color(1, 1, 1);
-                    //print("ball: " + Time.time.ToString("f6"));
-                }
-            }
-        }
-        
-        _xCurrent = Ball.transform.position.x;
-        
-        if (_allowBallMovement && _xCurrent - _center_intialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
-        {
-            // move left
-            MoveBall(_xCurrent, -1);
-        } else if (_allowBallMovement && _xCurrent - _center_intialX < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
-        {
-            // move right
-            MoveBall(_xCurrent, +1);
-        }
-
-        _ballDirection = 0;
-
+        // write log messages to log file
+        WriteLog();
     }
 
    // Update is called once per frame
     void Update()
     {
-        zeit.Start();
         if (!_playing)
         {
             //BtnStartStop();
         }
         else
         {
-            _deltaTime = Time.deltaTime;
+            long deltaTime = _zeit.ElapsedMilliseconds - _deltaFramesTime;
+            _deltaFramesTime += deltaTime;
 
-            if (_nFrame == 0)
+            SelectStage(deltaTime);
+            
+            if ( CheckIfStimuliEnded() )
             {
-                if (_timerFrame > 0)
+                //After primmed stimuli end, we have to wait for 100 ms to change ball to a new position 
+                if (_newPosition && _allowBallMovement) 
                 {
-                    _timerFrame -= _deltaTime;
-                }
-                else
-                {
-                    // after click start, game will wait 2 seconds to start
-                    _nFrame = 1;
-                    _timerFrame = _timesFrame[_nFrame];
-                    _timerBall = BallTimeCycle; // 3 seconds
-                    BallController(true);
+                    if (_zeit.ElapsedMilliseconds - _timeSinceEndStimulus > _delayStimuliMs - 1) // _delayStimuli is 100ms
+                    {
+                        // Move ball to next predefined position by the game
+                        Ball.transform.position = _nextPosition;
+                        ToLog("10--system ball position: " + _ballPosition);
+                        _newPosition = false;
                     
+                        // TODO: remove 2 lines below
+                        cellSound.color = new Color(1, 1, 1);
+                        cellVibration.color = new Color(1, 1, 1);
+                    }
                 }
-            } else if (_nFrame == 1)
+            }
+
+            // get current ball position: it could be changed by the user with the button arrows
+            _xCurrent = Ball.transform.position.x;
+        
+            if (_allowBallMovement && _xCurrent - _center_intialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
             {
+                // move left if user pressed button
+                MoveBall(_xCurrent, -1);
+            } else if (_allowBallMovement && _xCurrent - _center_intialX < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
+            {
+                // move right if user pressed button
+                MoveBall(_xCurrent, +1);
+            }
+
+            _ballDirection = 0;
+        }
+    }
+
+    private void SelectStage(long deltaTime)
+    {
+        if (_nStage == 0) 
+        {
+            if (_timerFrame > 0)
+            {
+                _timerFrame -= deltaTime;
+            }
+            else
+            {
+                // after click Start, game will wait 2 seconds to start
+                _nStage = 1;
+                _timerFrame = _timesFrame[_nStage];
+                _timerBall = BallTimeCycle; // 3 seconds
+                BallController(true);
+            }
+        } else if (_nStage == 1) 
+        {
                 // ball
                 if (_timerBall > 0)
                 {
-                    _timerBall -= _deltaTime;
+                    _timerBall -= deltaTime;
                 }
                 else
                 {
@@ -233,21 +262,21 @@ public class CogitoController : MonoBehaviour
                 // next-frame timer
                 if (_timerFrame > 0)
                 {
-                    _timerFrame -= _deltaTime;
+                    _timerFrame -= deltaTime;
                 }
                 else
                 {
-                    _nFrame = 2;
-                    _timerFrame = _timesFrame[_nFrame];
+                    _nStage = 2;
+                    _timerFrame = _timesFrame[_nStage];
                     MatrixQuestionController(true);
                 }
                 
-            } else if (_nFrame == 2)
-            {
+        } else if (_nStage == 2) 
+        {
                 // ball
                 if (_timerBall > 0)
                 {
-                    _timerBall -= _deltaTime;
+                    _timerBall -= deltaTime;
                 }
                 else
                 {
@@ -260,21 +289,21 @@ public class CogitoController : MonoBehaviour
                 // next-frame timer
                 if (_timerFrame > 0)
                 {
-                    _timerFrame -= _deltaTime;
+                    _timerFrame -= deltaTime;
                 }
                 else
                 {
-                    _nFrame = 3;
-                    _timerFrame = _timesFrame[_nFrame];
+                    _nStage = 3;
+                    _timerFrame = _timesFrame[_nStage];
                     MatrixQuestionController(false);
                 }
                 
-            } else if (_nFrame == 3)
-            {
+        } else if (_nStage == 3) 
+        {
                 // ball
                 if (_timerBall > 0)
                 {
-                    _timerBall -= _deltaTime;
+                    _timerBall -= deltaTime;
                 }
                 else
                 {
@@ -287,40 +316,84 @@ public class CogitoController : MonoBehaviour
                 // next-frame timer
                 if (_timerFrame > 0)
                 {
-                    _timerFrame -= _deltaTime;
+                    _timerFrame -= deltaTime;
                 }
                 else
                 {
-                    _nFrame = 4;
-                    _timerFrame = _timesFrame[_nFrame];
+                    _nStage = 4;
+                    _timerFrame = _timesFrame[_nStage];
                     BallController(false);
                     MatrixAnswerController(true);
-                }
-            } else if (_nFrame == 4)
+                } 
+        } else if (_nStage == 4)
+        {
+            // next-frame timer
+            if (_timerFrame > 0)
             {
-                // next-frame timer
-                if (_timerFrame > 0)
-                {
-                    _timerFrame -= _deltaTime;
-                }
-                else
-                {
-                    MatrixAnswerController(false);
-                    Ruler.SetActive(true);
-                    Ball.SetActive(true);
-                    ArrowsPanel.SetActive(true);
-                    _nFrame = 0;
-                    _timerFrame = _timesFrame[_nFrame];
-                }
-            } else if (_nFrame == 5)
-            {
+                _timerFrame -= deltaTime;
+            }
+            else 
+            { 
+                MatrixAnswerController(false); 
+                Ruler.SetActive(true);
+                Ball.SetActive(true);
+                ArrowsPanel.SetActive(true);
+                _nStage = 0;
+                _timerFrame = _timesFrame[_nStage];
+            }
+        } else if (_nStage == 5)
+        {
                 
+        }
+    }
+    
+    // CheckIfStimuliEnded: it checks if primmed stimuli have ended and returns a boolean
+    private bool CheckIfStimuliEnded()
+    {
+        if (_isAudio)
+        {
+            if (_zeit.ElapsedMilliseconds - _timeSinceAudioPlay > AudioPulses[_idxStimuli].clip.length)
+            {
+                if (!AudioPulses[_idxStimuli].isPlaying)
+                {
+                    // when audio-play ends
+                    _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
+                    ToLog("13-- sound ends: " + _idxStimuli+1);
+                    _isAudio = false;
+                    // vibration is false, just in case audio and vibrations are executed in parallel
+                    _isVibration = false; // after testing, vibration always ends before the auditory stimulus
+                }
             }
         }
-        
-        print(zeit.Elapsed);
+        else
+        {
+            if (_isVibration)
+            {
+                if (_zeit.ElapsedMilliseconds - _timeSinceVibrationStarts > _vibrationTimePatterns[_idxStimuli])
+                {
+                    // when vibration ends
+                    _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
+                    ToLog("15-- vibration ends: " + _idxStimuli+1);
+                    _isVibration = false;
+                    _isAudio = false; // because if.
+                }
+            }
+        }
+        return !(_isAudio | _isVibration);
     }
-
+    
+    // append new message to the general log message 
+    private void ToLog(string msg)
+    {
+        _logs += _zeit.ElapsedMilliseconds +" -- " + msg + "\n";
+        print(msg);
+    }
+    // writeLog assumes log file was already created under the path in _pathLogFile
+    private void WriteLog()
+    {
+        File.AppendAllText(_pathLogFile, _logs);
+        _logs = "";
+    }
     private void BallController(bool on)
     {
         if (on)
@@ -330,13 +403,10 @@ public class CogitoController : MonoBehaviour
             ArrowsPanel.SetActive(true);
             _allowBallMovement = true;
             NextBallPosition();
-            _startBallTime = Time.time;
         }
         else
         {
-            //print("reset A: " + Ball.transform.position.x);
             Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
-            //print("reset B: " + Ball.transform.position.x);
             _allowBallMovement = false;
             Ball.SetActive(false);
             Ruler.SetActive(false);
@@ -348,9 +418,11 @@ public class CogitoController : MonoBehaviour
     {
         if (_toVibrate)
         {
-            //print("vibration: " + Time.time.ToString("f6"));
             cellVibration.color = new Color(0, 0, 0);
+            _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
+            ToLog("14-- vibration starts: " + _idxStimuli+1);
             Vibration.Vibrate(vibrationPattern, -1);
+            _isVibration = true;
         }
     }
 
@@ -358,45 +430,44 @@ public class CogitoController : MonoBehaviour
     {
         if (_toPlaySound)
         {
-            //print("auditory: " + Time.time.ToString("f6"));
-            _timeSinceAudioPlay = Time.time;
             cellSound.color = new Color(0, 0, 0);
+            _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
+            ToLog("12-- sound starts: "+_idxStimuli+1);
             _audio.Play(0);
             _isAudio = true;
-            //print("start: " + Time.time.ToString("f6"));
         }
     }
     
     private void NextBallPosition()
     {
-        //print("next ball position");
-        _ballPosition = _xPositions[_idPositionX];
-        
+        _ballPosition = _xPositions[_idxPositionX];
+        _idxStimuli = _ballPosition-1;
         //stimuli
-        if (level == 2)
+        if (_level == 2)
         {
             if (_ballPosition != 0)
             {
                 // haptic stimulus
-                Vibrate(_vibrationPatterns[_ballPosition-1]);
+                Vibrate(_vibrationPatterns[_idxStimuli]);
                 //auditory stimulus
-                PlaySound(AudioPulses[_ballPosition-1]);
-                // TODO: to add delay for 100ms!!
+                PlaySound(AudioPulses[_idxStimuli]);
+                // delay of 100 ms after primmed stimuli is applied in Update()
             }
         }
         
+        // we enlist the new ball position but we have to wait stimuli time + 100ms to move the ball 
         _nextPosition = new Vector3(_center_intialX + _ballPosition* _deltaMovement, _center_intialY, 0);
         _newPosition = true;
         
-        if (_idPositionX < _xPositions.Length-1 )
+        if (_idxPositionX < _xPositions.Length-1 )
         {
             // point to next position
-            _idPositionX += 1;
+            _idxPositionX += 1;
         }
         else
         {
             // reset idx position
-            _idPositionX = 0;
+            _idxPositionX = 0;
         }
         
     }
@@ -408,20 +479,15 @@ public class CogitoController : MonoBehaviour
         {
             // right
             Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
-            _ballPosition += 1; 
+            _ballPosition += 1;
+            ToLog("11-- user ball position: "+_ballPosition);
         } else if (typeMovement < 0)
         {
             // left
             Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
             _ballPosition -= 1; 
+            ToLog("11-- user ball position: "+_ballPosition);
         }
-
-        if (_ballPosition == 0)
-        {
-            var elapsedTime = Time.time - _startBallTime;
-            //print(_idPositionX + "- elapsed time: " + elapsedTime);
-        }
-        
     }
 
     private void MatrixQuestionController(bool on)
@@ -491,14 +557,15 @@ public class CogitoController : MonoBehaviour
 
     private void BtnStartStop()
     {
-        _nFrame = 0;
-        _timerFrame = _timesFrame[_nFrame];
+        _nStage = 0;
+        _timerFrame = _timesFrame[_nStage];
         _playing = !_playing;
         BtnStartGame.gameObject.SetActive(false);
         Ruler.SetActive(true);
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
-
+        _deltaFramesTime = _zeit.ElapsedMilliseconds;
+        ToLog("1-- game starts");
     }
 
     private void BtnOKanswer()
@@ -510,7 +577,6 @@ public class CogitoController : MonoBehaviour
     public void BtnAnswerPattern(int id)
     {
         _answerPattern[id] = !_answerPattern[id];
-        //print(id + " : " + _answerPattern[id]);
     }
 
     public void CheckVibrate()

@@ -20,6 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
     </list>
@@ -88,6 +89,8 @@
       <workItem from="1610123143783" duration="1748000" />
       <workItem from="1610125203919" duration="1886000" />
       <workItem from="1610135358933" duration="7039000" />
+      <workItem from="1610460267988" duration="5048000" />
+      <workItem from="1610478527967" duration="13341000" />
     </task>
     <servers />
   </component>
@@ -110,6 +113,10 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="517" y="200" width="832" height="704" key="#Inspection_severity" timestamp="1610483005959">
+      <screen x="0" y="27" width="1877" height="1053" />
+    </state>
+    <state x="517" y="200" width="832" height="704" key="#Inspection_severity/0.27.1877.1053@0.27.1877.1053" timestamp="1610483005959" />
     <state x="427" y="187" key="SettingsEditor" timestamp="1609436678605">
       <screen x="0" y="27" width="1877" height="1053" />
     </state>
