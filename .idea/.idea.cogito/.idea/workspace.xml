@@ -20,8 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,6 +96,7 @@
       <workItem from="1610478527967" duration="13457000" />
       <workItem from="1610547760207" duration="2274000" />
       <workItem from="1610550072395" duration="8400000" />
+      <workItem from="1610566790910" duration="6527000" />
     </task>
     <servers />
   </component>
@@ -123,6 +127,10 @@
       <screen x="0" y="27" width="1877" height="1053" />
     </state>
     <state x="427" y="187" key="SettingsEditor/0.27.1877.1053@0.27.1877.1053" timestamp="1609436678605" />
+    <state x="559" y="203" width="748" height="698" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1610570609480">
+      <screen x="0" y="27" width="1877" height="1053" />
+    </state>
+    <state x="559" y="203" width="748" height="698" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.27.1877.1053@0.27.1877.1053" timestamp="1610570609480" />
     <state x="602" y="253" key="run.anything.popup" timestamp="1610552195220">
       <screen x="0" y="27" width="1877" height="1053" />
     </state>

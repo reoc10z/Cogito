@@ -23,6 +23,8 @@ public class CogitoController : MonoBehaviour
     private int _nStage = 0;
     private string _pathLogFile;
     private string _logs = "";
+    public Text MyText;
+    public Text MyText2;
     
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -97,32 +99,51 @@ public class CogitoController : MonoBehaviour
     
     void Awake()
     {
+        _widthScreen = Screen.width;
+    }
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        // initial logs
         //Path of the file
-        _pathLogFile = Application.dataPath + "/Log.txt";
-        //Create File if it doesn't exist
-        if (!File.Exists(_pathLogFile)) {
-            File.WriteAllText(_pathLogFile, "\n\n Log File \n" + "starts at: " + System.DateTime.Now + "\n\n");
+        if ( SystemInfo.deviceModel == "PC")
+        {
+            _pathLogFile = Application.dataPath + "/Log.txt";
         }
         else
         {
-            //append msg to log for adding later to log file
-            _logs += "\n\n Log File \n" + "starts at: " + System.DateTime.Now + "\n\n";
+            _pathLogFile = Application.persistentDataPath + "/Log.txt";
         }
+
+        MyText.text = _pathLogFile;
+        print(_pathLogFile);
+
+        //Create File if it doesn't exist
+        if (!File.Exists(_pathLogFile)) {
+            MyText2.text = "1";
+            File.WriteAllText(_pathLogFile, "\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
+            MyText2.text = "2";
+        }
+        else
+        {
+            MyText2.text = "3";
+            //append msg to log for adding later to log file
+            ToLog("\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
+        }
+        MyText2.text = "4";
         
         ToLog("-0- app starts: " + System.DateTime.Now );
-        _widthScreen = Screen.width;
+        
         ToLog("-0- screen size (w,h): " + _widthScreen + "," + Screen.height);
         ToLog("-0- mobile type: " + SystemInfo.deviceModel);
         ToLog("-0- android version: " + SystemInfo.operatingSystem);
         // TODO: _testVersion = get value of test version from settings file
         string _testVersion = "haptic-auditory";
         ToLog("-0- test version: " + _testVersion);
-    }
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        Vibration.Init ();
+        
+        // Initialize the plugin for vibrations
+        Vibration.Init();
         
         _level = 2;
         // general settingss
@@ -173,9 +194,9 @@ public class CogitoController : MonoBehaviour
         
         // haptic
         _isVibration = false;
-        
         // global timer 
         _zeit.Start();
+        
         //_currentTime = zeit.ElapsedMilliseconds;
         //toLog(_currentTime + ": app starts");
     }
@@ -420,7 +441,7 @@ public class CogitoController : MonoBehaviour
             _allowBallMovement = false;
             Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
             _ballPosition = 0;
-            ToLog("??? system ball position : " + _ballPosition);
+            ToLog("-10- system ball position: " + _ballPosition);
             Ball.SetActive(false);
             Ruler.SetActive(false);
             ArrowsPanel.SetActive(false);

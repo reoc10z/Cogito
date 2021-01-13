@@ -9,6 +9,7 @@
         <e p="Log.txt" t="Include" />
         <e p="Scripts" t="Include">
           <e p="CogitoController.cs" t="Include" />
+          <e p="Share.cs" t="Include" />
         </e>
         <e p="Vibration" t="Include">
           <e p="Vibration.cs" t="Include" />
