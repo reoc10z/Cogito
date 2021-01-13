@@ -47,6 +47,7 @@ public class CogitoController : MonoBehaviour
     private float _xCurrent;
     private short[] _xPositions = new short[] {1,2,3,4,5};  //from -6 to 6
     private short _ballPosition = 0;
+    private short _nextBallPosition = 0;
     private short _idxPositionX = 0;
     private int _idxStimuli = 0;
     private int _ballDirection;
@@ -108,7 +109,14 @@ public class CogitoController : MonoBehaviour
             _logs += "\n\n Log File \n" + "starts at: " + System.DateTime.Now + "\n\n";
         }
         
+        ToLog("-0- app starts: " + System.DateTime.Now );
         _widthScreen = Screen.width;
+        ToLog("-0- screen size (w,h): " + _widthScreen + "," + Screen.height);
+        ToLog("-0- mobile type: " + SystemInfo.deviceModel);
+        ToLog("-0- android version: " + SystemInfo.operatingSystem);
+        // TODO: _testVersion = get value of test version from settings file
+        string _testVersion = "haptic-auditory";
+        ToLog("-0- test version: " + _testVersion);
     }
     
     // Start is called before the first frame update
@@ -201,7 +209,8 @@ public class CogitoController : MonoBehaviour
                     {
                         // Move ball to next predefined position by the game
                         Ball.transform.position = _nextPosition;
-                        ToLog("10--system ball position: " + _ballPosition);
+                        _ballPosition = _nextBallPosition;
+                        ToLog("-10-system ball position: " + _ballPosition);
                         _newPosition = false;
                     
                         // TODO: remove 2 lines below
@@ -214,6 +223,7 @@ public class CogitoController : MonoBehaviour
             // get current ball position: it could be changed by the user with the button arrows
             _xCurrent = Ball.transform.position.x;
         
+            // limit ball movement to screen size
             if (_allowBallMovement && _xCurrent - _center_intialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
             {
                 // move left if user pressed button
@@ -346,7 +356,7 @@ public class CogitoController : MonoBehaviour
                 
         }
     }
-    
+
     // CheckIfStimuliEnded: it checks if primmed stimuli have ended and returns a boolean
     private bool CheckIfStimuliEnded()
     {
@@ -358,7 +368,7 @@ public class CogitoController : MonoBehaviour
                 {
                     // when audio-play ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("13-- sound ends: " + _idxStimuli+1);
+                    ToLog("-13- sound ends: " + (_idxStimuli + 1) );
                     _isAudio = false;
                     // vibration is false, just in case audio and vibrations are executed in parallel
                     _isVibration = false; // after testing, vibration always ends before the auditory stimulus
@@ -373,7 +383,7 @@ public class CogitoController : MonoBehaviour
                 {
                     // when vibration ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("15-- vibration ends: " + _idxStimuli+1);
+                    ToLog("-15- vibration ends: " + (_idxStimuli + 1) );
                     _isVibration = false;
                     _isAudio = false; // because if.
                 }
@@ -385,7 +395,8 @@ public class CogitoController : MonoBehaviour
     // append new message to the general log message 
     private void ToLog(string msg)
     {
-        _logs += _zeit.ElapsedMilliseconds +" -- " + msg + "\n";
+        msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
+        _logs += msg;
         print(msg);
     }
     // writeLog assumes log file was already created under the path in _pathLogFile
@@ -401,13 +412,15 @@ public class CogitoController : MonoBehaviour
             Ball.SetActive(true);
             Ruler.SetActive(true);
             ArrowsPanel.SetActive(true);
-            _allowBallMovement = true;
             NextBallPosition();
+            _allowBallMovement = true;
         }
         else
         {
-            Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
             _allowBallMovement = false;
+            Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
+            _ballPosition = 0;
+            ToLog("??? system ball position : " + _ballPosition);
             Ball.SetActive(false);
             Ruler.SetActive(false);
             ArrowsPanel.SetActive(false);
@@ -420,7 +433,7 @@ public class CogitoController : MonoBehaviour
         {
             cellVibration.color = new Color(0, 0, 0);
             _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
-            ToLog("14-- vibration starts: " + _idxStimuli+1);
+            ToLog("-14- vibration starts: " + (_idxStimuli + 1));
             Vibration.Vibrate(vibrationPattern, -1);
             _isVibration = true;
         }
@@ -432,7 +445,7 @@ public class CogitoController : MonoBehaviour
         {
             cellSound.color = new Color(0, 0, 0);
             _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-            ToLog("12-- sound starts: "+_idxStimuli+1);
+            ToLog("-12- sound starts: "+ (_idxStimuli + 1) );
             _audio.Play(0);
             _isAudio = true;
         }
@@ -440,12 +453,12 @@ public class CogitoController : MonoBehaviour
     
     private void NextBallPosition()
     {
-        _ballPosition = _xPositions[_idxPositionX];
-        _idxStimuli = _ballPosition-1;
+        _nextBallPosition = _xPositions[_idxPositionX];
+        _idxStimuli = _nextBallPosition-1;
         //stimuli
         if (_level == 2)
         {
-            if (_ballPosition != 0)
+            if (_nextBallPosition != 0)
             {
                 // haptic stimulus
                 Vibrate(_vibrationPatterns[_idxStimuli]);
@@ -456,7 +469,7 @@ public class CogitoController : MonoBehaviour
         }
         
         // we enlist the new ball position but we have to wait stimuli time + 100ms to move the ball 
-        _nextPosition = new Vector3(_center_intialX + _ballPosition* _deltaMovement, _center_intialY, 0);
+        _nextPosition = new Vector3(_center_intialX + _nextBallPosition* _deltaMovement, _center_intialY, 0);
         _newPosition = true;
         
         if (_idxPositionX < _xPositions.Length-1 )
@@ -480,13 +493,13 @@ public class CogitoController : MonoBehaviour
             // right
             Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
             _ballPosition += 1;
-            ToLog("11-- user ball position: "+_ballPosition);
+            ToLog("-11- user ball position: "+_ballPosition);
         } else if (typeMovement < 0)
         {
             // left
             Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
             _ballPosition -= 1; 
-            ToLog("11-- user ball position: "+_ballPosition);
+            ToLog("-11- user ball position: "+_ballPosition);
         }
     }
 
@@ -496,6 +509,9 @@ public class CogitoController : MonoBehaviour
         {
             // show pattern
             MatrixQuestion.SetActive(true);
+            ToLog("-20- system pattern: " + _kPattern + " : " + 
+                  String.Join(",", new List<bool>(_list_patterns[_kPattern]).ConvertAll(i => i.ToString()).ToArray())
+                  );
         }
         else
         {
@@ -504,6 +520,7 @@ public class CogitoController : MonoBehaviour
             // enlist next pattern
             NextPattern(_listQuestionCells, _list_patterns[_kPattern]);
             _kPattern += 1;
+            //TODO: REMOVE below code lines. This reset should not happen when playing
             if (_kPattern == 2)
             {
                 _kPattern = 0;
@@ -518,9 +535,13 @@ public class CogitoController : MonoBehaviour
             MatrixAnswer.SetActive(true);
             Btn_OK.gameObject.SetActive(true);
             Btn_OK.interactable = true;
+            ToLog("-21- answer pattern starts");
         }
         else
         {
+            ToLog("-24- answer pattern ends by system: " + (_kPattern-1) + " : " + 
+                  String.Join(",", new List<bool>(_answerPattern).ConvertAll(i => i.ToString()).ToArray())
+            );
             MatrixAnswer.SetActive(false);
             Btn_OK.gameObject.SetActive(false);
             // reset cells to true (white)
@@ -551,7 +572,7 @@ public class CogitoController : MonoBehaviour
     } 
     
     public void BtnLeft()
-    {
+    { 
         _ballDirection = -1;
     }
 
@@ -565,11 +586,12 @@ public class CogitoController : MonoBehaviour
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        ToLog("1-- game starts");
+        ToLog("-1- game starts");
     }
 
     private void BtnOKanswer()
     {
+        ToLog("-23- answer pattern ends by user ok-button");
         Btn_OK.interactable = false;
         MatrixAnswer.SetActive(false);
     }
@@ -577,6 +599,7 @@ public class CogitoController : MonoBehaviour
     public void BtnAnswerPattern(int id)
     {
         _answerPattern[id] = !_answerPattern[id];
+        ToLog("-22- user pressed cell: " + id + " : " + _answerPattern[id] );
     }
 
     public void CheckVibrate()
