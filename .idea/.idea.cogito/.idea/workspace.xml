@@ -36,13 +36,17 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Assets/Scripts/BallController.cs" />
         <option value="$PROJECT_DIR$/Assets/Vibration/Vibration.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Share.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ObjectStore.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
       </list>
     </option>
   </component>
@@ -96,7 +100,9 @@
       <workItem from="1610478527967" duration="13457000" />
       <workItem from="1610547760207" duration="2274000" />
       <workItem from="1610550072395" duration="8400000" />
-      <workItem from="1610566790910" duration="6527000" />
+      <workItem from="1610566790910" duration="7863000" />
+      <workItem from="1610633866415" duration="5888000" />
+      <workItem from="1610651551519" duration="14604000" />
     </task>
     <servers />
   </component>

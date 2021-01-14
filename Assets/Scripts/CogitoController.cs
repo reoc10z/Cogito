@@ -20,12 +20,12 @@ public class CogitoController : MonoBehaviour
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
     public Button BtnStartGame;
+    public Button BtnShare;
     private int _nStage = 0;
     private string _pathLogFile;
     private string _logs = "";
-    public Text MyText;
-    public Text MyText2;
-    
+    public Text TextforPath;
+
     //Timers
     public float BallTimeCycle = 3.0f;
     private float _ballTime;
@@ -71,6 +71,7 @@ public class CogitoController : MonoBehaviour
     private Toggle[] _listAnswerCells;
     private bool[] _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
     public Button Btn_OK;
+    private bool _registerAnswer = false;
     
     //auditory
     public AudioSource[] AudioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
@@ -92,11 +93,7 @@ public class CogitoController : MonoBehaviour
     };
     private long[] _vibrationTimePatterns; // array that includes the time length for each item in _vibratioPatterns
     private bool _isVibration;
-    
-    //others to remove later
-    public Image cellSound;
-    public Image cellVibration;
-    
+
     void Awake()
     {
         _widthScreen = Screen.width;
@@ -115,24 +112,23 @@ public class CogitoController : MonoBehaviour
         {
             _pathLogFile = Application.persistentDataPath + "/Log.txt";
         }
-
-        MyText.text = _pathLogFile;
+        
+        // set path of log file to code for sharing
+        BtnShare.GetComponent<NativeShareScript>().SetPath(_pathLogFile);
+        
+        TextforPath.text = _pathLogFile;
         print(_pathLogFile);
 
         //Create File if it doesn't exist
         if (!File.Exists(_pathLogFile)) {
-            MyText2.text = "1";
             File.WriteAllText(_pathLogFile, "\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
-            MyText2.text = "2";
         }
         else
         {
-            MyText2.text = "3";
             //append msg to log for adding later to log file
             ToLog("\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
         }
-        MyText2.text = "4";
-        
+
         ToLog("-0- app starts: " + System.DateTime.Now );
         
         ToLog("-0- screen size (w,h): " + _widthScreen + "," + Screen.height);
@@ -233,10 +229,6 @@ public class CogitoController : MonoBehaviour
                         _ballPosition = _nextBallPosition;
                         ToLog("-10-system ball position: " + _ballPosition);
                         _newPosition = false;
-                    
-                        // TODO: remove 2 lines below
-                        cellSound.color = new Color(1, 1, 1);
-                        cellVibration.color = new Color(1, 1, 1);
                     }
                 }
             }
@@ -450,26 +442,18 @@ public class CogitoController : MonoBehaviour
 
     private void Vibrate(long[] vibrationPattern)
     {
-        if (_toVibrate)
-        {
-            cellVibration.color = new Color(0, 0, 0);
-            _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
-            ToLog("-14- vibration starts: " + (_idxStimuli + 1));
-            Vibration.Vibrate(vibrationPattern, -1);
-            _isVibration = true;
-        }
+        _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
+        ToLog("-14- vibration starts: " + (_idxStimuli + 1));
+        Vibration.Vibrate(vibrationPattern, -1);
+        _isVibration = true;
     }
 
     private void PlaySound(AudioSource _audio)
     {
-        if (_toPlaySound)
-        {
-            cellSound.color = new Color(0, 0, 0);
-            _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-            ToLog("-12- sound starts: "+ (_idxStimuli + 1) );
-            _audio.Play(0);
-            _isAudio = true;
-        }
+        _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
+        ToLog("-12- sound starts: "+ (_idxStimuli + 1) );
+        _audio.Play(0);
+        _isAudio = true;
     }
     
     private void NextBallPosition()
@@ -481,10 +465,17 @@ public class CogitoController : MonoBehaviour
         {
             if (_nextBallPosition != 0)
             {
-                // haptic stimulus
-                Vibrate(_vibrationPatterns[_idxStimuli]);
-                //auditory stimulus
-                PlaySound(AudioPulses[_idxStimuli]);
+                if (_toPlaySound)
+                {
+                    //auditory stimulus
+                    PlaySound(AudioPulses[_idxStimuli]);
+                }
+
+                if (_toVibrate)
+                {
+                    // haptic stimulus
+                    Vibrate(_vibrationPatterns[_idxStimuli]);
+                }
                 // delay of 100 ms after primmed stimuli is applied in Update()
             }
         }
@@ -553,6 +544,7 @@ public class CogitoController : MonoBehaviour
     {
         if (on)
         {
+            _registerAnswer = true;
             MatrixAnswer.SetActive(true);
             Btn_OK.gameObject.SetActive(true);
             Btn_OK.interactable = true;
@@ -560,13 +552,14 @@ public class CogitoController : MonoBehaviour
         }
         else
         {
+            // _registerAnswer is used to control when the log message of the answer-matrix buttons appears. The below foreach calls the internally the function BtnOKanswer() 
+            _registerAnswer = false;
             ToLog("-24- answer pattern ends by system: " + (_kPattern-1) + " : " + 
                   String.Join(",", new List<bool>(_answerPattern).ConvertAll(i => i.ToString()).ToArray())
             );
             MatrixAnswer.SetActive(false);
             Btn_OK.gameObject.SetActive(false);
-            // reset cells to true (white)
-            _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            // reset cells to true (white). when changing the value of each cell, the attached-to-button function BtnOKanswer() modifies the array _answerPattern
             foreach (Toggle cell in _listAnswerCells)
             {
                 cell.isOn = true;
@@ -603,6 +596,8 @@ public class CogitoController : MonoBehaviour
         _timerFrame = _timesFrame[_nStage];
         _playing = !_playing;
         BtnStartGame.gameObject.SetActive(false);
+        BtnShare.gameObject.SetActive(false);
+        TextforPath.enabled = false;
         Ruler.SetActive(true);
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
@@ -620,7 +615,10 @@ public class CogitoController : MonoBehaviour
     public void BtnAnswerPattern(int id)
     {
         _answerPattern[id] = !_answerPattern[id];
-        ToLog("-22- user pressed cell: " + id + " : " + _answerPattern[id] );
+        if (_registerAnswer)
+        {
+            ToLog("-22- user pressed cell: " + id + " : " + _answerPattern[id] );
+        }
     }
 
     public void CheckVibrate()
@@ -631,6 +629,11 @@ public class CogitoController : MonoBehaviour
     public void CheckPlaySound()
     {
         _toPlaySound = !_toPlaySound;
+    }
+
+    public string GetLogPathFile()
+    {
+        return _pathLogFile;
     }
     
 }
