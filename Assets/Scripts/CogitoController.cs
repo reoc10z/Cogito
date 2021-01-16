@@ -104,6 +104,7 @@ public class CogitoController : MonoBehaviour
     {
         // initial logs
         //Path of the file
+        // TODO: this variable should be written into a settings file
         if ( SystemInfo.deviceModel == "PC")
         {
             _pathLogFile = Application.dataPath + "/Log.txt";
@@ -114,6 +115,7 @@ public class CogitoController : MonoBehaviour
         }
         
         // set path of log file to code for sharing
+        //TODO: this setpath sould write it into a setting file
         BtnShare.GetComponent<NativeShareScript>().SetPath(_pathLogFile);
         
         TextforPath.text = _pathLogFile;
@@ -630,10 +632,4 @@ public class CogitoController : MonoBehaviour
     {
         _toPlaySound = !_toPlaySound;
     }
-
-    public string GetLogPathFile()
-    {
-        return _pathLogFile;
-    }
-    
 }

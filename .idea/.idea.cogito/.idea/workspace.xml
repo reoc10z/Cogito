@@ -22,9 +22,7 @@
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +44,11 @@
         <option value="$PROJECT_DIR$/Assets/Vibration/Vibration.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Share.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ObjectStore.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
         <option value="$PROJECT_DIR$/Assets/Editor/SceneAutoLoader.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/NasaController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
       </list>
     </option>
   </component>
@@ -108,7 +107,7 @@
       <workItem from="1610651551519" duration="14604000" />
       <workItem from="1610720314345" duration="7108000" />
       <workItem from="1610746488878" duration="4081000" />
-      <workItem from="1610835235980" duration="1091000" />
+      <workItem from="1610835235980" duration="4530000" />
     </task>
     <servers />
   </component>
