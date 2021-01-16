@@ -4630,8 +4630,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cellSound: {fileID: 0}
-  cellVibration: {fileID: 0}
 --- !u!222 &971143949
 CanvasRenderer:
   m_ObjectHideFlags: 0
