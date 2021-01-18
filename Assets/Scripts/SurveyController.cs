@@ -10,10 +10,10 @@ public class SurveyController : MonoBehaviour
 {
     private bool waitingFirstClick = true;
     
-    
     // general objects
     public GameObject PanelNasaInformation;
     public GameObject QuestionNasa;
+    public Text WarningText;
     public int level = 2;
     private int nStage = -1; // start in -1
     private string _pathLogFile;
@@ -135,10 +135,11 @@ public class SurveyController : MonoBehaviour
         {
             if (waitingFirstClick)
             {
-                EditorUtility.DisplayDialog("", "Marca una respuesta", "ok");
+                WarningText.text = "Marca una respuesta";
             }
             else
             {
+                WarningText.text = "";
                 // capture results from slider
                 // log message
                 ToLog("-32- question: " + (nStage) + " : " + questions[nStage] + " : " + sliderValue);

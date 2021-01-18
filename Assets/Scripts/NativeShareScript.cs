@@ -14,12 +14,26 @@ public class NativeShareScript : MonoBehaviour {
     public void Awake()
     {
         //Cogito = CodeObjetc.GetComponent<CogitoController>();
+        _logPathFile = GetPath();
     }
 
-    public void SetPath(string path)
+    private string GetPath()
     {
+        string path;
         // TODO this should be read from a settings file
-        _logPathFile = path;
+        // initial logs
+        //Path of the file
+        // TODO: this variable should be written into a settings file
+        if ( SystemInfo.deviceModel == "PC")
+        {
+            path = Application.dataPath + "/Log.txt";
+        }
+        else
+        {
+            path = Application.persistentDataPath + "/Log.txt";
+        }
+
+        return path;
     }
     
     public void ShareBtnPress()

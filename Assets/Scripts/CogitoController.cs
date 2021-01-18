@@ -19,12 +19,9 @@ public class CogitoController : MonoBehaviour
     private bool _playing;
     private bool _toVibrate = true;
     private bool _toPlaySound = true;
-    public Button BtnStartGame;
-    public Button BtnShare;
     private int _nStage = 0;
     private string _pathLogFile;
     private string _logs = "";
-    public Text TextforPath;
 
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -113,12 +110,8 @@ public class CogitoController : MonoBehaviour
         {
             _pathLogFile = Application.persistentDataPath + "/Log.txt";
         }
-        
         // set path of log file to code for sharing
         //TODO: this setpath sould write it into a setting file
-        BtnShare.GetComponent<NativeShareScript>().SetPath(_pathLogFile);
-        
-        TextforPath.text = _pathLogFile;
         print(_pathLogFile);
 
         //Create File if it doesn't exist
@@ -148,7 +141,6 @@ public class CogitoController : MonoBehaviour
         // when start method, the game has not started
         _playing = false;
         _ballDirection = 0;
-        BtnStartGame.onClick.AddListener(BtnStartStop);
 
         //timers
         _timeSinceEndStimulus = 0;
@@ -210,7 +202,7 @@ public class CogitoController : MonoBehaviour
     {
         if (!_playing)
         {
-            //BtnStartStop();
+            StartGame();
         }
         else
         {
@@ -592,14 +584,11 @@ public class CogitoController : MonoBehaviour
         _ballDirection = -1;
     }
 
-    private void BtnStartStop()
+    private void StartGame()
     {
         _nStage = 0;
         _timerFrame = _timesFrame[_nStage];
         _playing = !_playing;
-        BtnStartGame.gameObject.SetActive(false);
-        BtnShare.gameObject.SetActive(false);
-        TextforPath.enabled = false;
         Ruler.SetActive(true);
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);

@@ -13,6 +13,8 @@
         <e p="Log.txt" t="Include" />
         <e p="Scripts" t="Include">
           <e p="CogitoController.cs" t="Include" />
+          <e p="Loader.cs" t="Include" />
+          <e p="MenuController.cs" t="Include" />
           <e p="NativeShareScript.cs" t="Include" />
           <e p="SurveyController.cs" t="Include" />
         </e>

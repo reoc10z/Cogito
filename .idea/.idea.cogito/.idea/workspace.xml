@@ -22,7 +22,13 @@
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Q_Scene.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Q_Scene.unity.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +41,8 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Editor/SceneAutoLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/MenuController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Loader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
@@ -46,9 +54,11 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/ObjectStore.cs" />
         <option value="$PROJECT_DIR$/Assets/Editor/SceneAutoLoader.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/NasaController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Loader.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
       </list>
     </option>
   </component>
@@ -62,7 +72,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="preferences.environmentSetup" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -108,6 +118,8 @@
       <workItem from="1610720314345" duration="7108000" />
       <workItem from="1610746488878" duration="4081000" />
       <workItem from="1610835235980" duration="4530000" />
+      <workItem from="1610982484559" duration="5452000" />
+      <workItem from="1610991278693" duration="836000" />
     </task>
     <servers />
   </component>
@@ -134,10 +146,10 @@
       <screen x="0" y="27" width="1877" height="1053" />
     </state>
     <state x="517" y="200" width="832" height="704" key="#Inspection_severity/0.27.1877.1053@0.27.1877.1053" timestamp="1610483005959" />
-    <state x="427" y="187" key="SettingsEditor" timestamp="1609436678605">
+    <state x="176" y="184" width="1361" height="730" key="SettingsEditor" timestamp="1610985007888">
       <screen x="0" y="27" width="1877" height="1053" />
     </state>
-    <state x="427" y="187" key="SettingsEditor/0.27.1877.1053@0.27.1877.1053" timestamp="1609436678605" />
+    <state x="176" y="184" width="1361" height="730" key="SettingsEditor/0.27.1877.1053@0.27.1877.1053" timestamp="1610985007888" />
     <state x="559" y="203" width="748" height="698" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1610570609480">
       <screen x="0" y="27" width="1877" height="1053" />
     </state>
