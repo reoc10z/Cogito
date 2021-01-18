@@ -4,7 +4,6 @@ using System.IO;
 using UnityEngine.UI;
 
 public class NativeShareScript : MonoBehaviour {
-    public GameObject CanvasShareObj;
     private bool isProcessing = false;
     private bool isFocus = false;
     //public GameObject CodeObjetc;
@@ -40,7 +39,6 @@ public class NativeShareScript : MonoBehaviour {
     {
         if (!isProcessing)
         {
-            CanvasShareObj.SetActive(true);
             StartCoroutine(ShareTextInAndroid());
         }
     }
@@ -62,7 +60,11 @@ public class NativeShareScript : MonoBehaviour {
                             "\n\n!Hola!"+
                             "\n\nNo he modificado el siguiente contenido."+
                             "\n\nA continuación se incluyen los datos de mi archivo log:"+
+                            "\n\n"+
+                            "\n\n"+
                             "\n\n-------------------------------------------------------"+
+                            "\n\n"+
+                            "\n\n"+
                             "\n\n";
         shareMessage += ReadContentLogFile(_logPathFile);
 
@@ -88,7 +90,6 @@ public class NativeShareScript : MonoBehaviour {
         }
 
         yield return new WaitUntil (() => isFocus);
-        CanvasShareObj.SetActive(false);
         isProcessing = false;
     }
  

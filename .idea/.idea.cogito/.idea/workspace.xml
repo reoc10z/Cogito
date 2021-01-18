@@ -20,15 +20,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Q_Scene.unity" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Q_Scene.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/QuestionnaireScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/QuestionnaireScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Loader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Loader.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,11 +53,11 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/ObjectStore.cs" />
         <option value="$PROJECT_DIR$/Assets/Editor/SceneAutoLoader.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/NasaController.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Loader.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Loader.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
       </list>
     </option>
   </component>
@@ -120,6 +119,9 @@
       <workItem from="1610835235980" duration="4530000" />
       <workItem from="1610982484559" duration="5452000" />
       <workItem from="1610991278693" duration="836000" />
+      <workItem from="1610996503639" duration="828000" />
+      <workItem from="1610998569840" duration="927000" />
+      <workItem from="1611000484534" duration="1367000" />
     </task>
     <servers />
   </component>

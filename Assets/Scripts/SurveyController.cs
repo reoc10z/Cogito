@@ -14,6 +14,7 @@ public class SurveyController : MonoBehaviour
     public GameObject PanelNasaInformation;
     public GameObject QuestionNasa;
     public Text WarningText;
+    public Button BtnMenu;
     public int level = 2;
     private int nStage = -1; // start in -1
     private string _pathLogFile;
@@ -45,7 +46,7 @@ public class SurveyController : MonoBehaviour
         " ¿Qué tanta exigencia mental tuvo la tarea?",
         "¿Qué tanta demanda física tuvo la tarea?",
         "¿Qué tan apresurada o afanada fue la tarea?",
-        "¿Qué tan exitoso fuiste haciendo la tarea solicitada'",
+        "¿Qué tan exitoso fuiste haciendo la tarea solicitada?",
         "¿Qué tan duro tuviste que trabajar para lograr tu nivel de desempeño?",
         "¿Qué tan inseguro, desanimado, irritado, estresado y molesto estuviste?"
     };
@@ -58,9 +59,10 @@ public class SurveyController : MonoBehaviour
     
     void Start()
     {
+        BtnMenu.onClick.AddListener(GoToMenu);
+        
         HandleSliderImg = HandleSlider.GetComponent<Image>().gameObject;
         HandleSliderImg.SetActive(false);
-        
         // elements for nasa
         PanelNasaInformation.SetActive(false);
         QuestionNasa.SetActive(false);
@@ -211,6 +213,11 @@ public class SurveyController : MonoBehaviour
         TextQuestionNasa.text = questions[nStage];
         TextQuestionN.text = (nStage + 1) + " de 6";
         TextExplanationNasa.text = explanations[nStage];
+    }
+
+    private void GoToMenu()
+    {
+        Loader.Load(Loader.Scene.MenuScene);
     }
     
 }

@@ -13,6 +13,7 @@ public class CogitoController : MonoBehaviour
 {
     
     // general settings
+    public Button BtnMenu;
     private float _deltaMovement;
     private float _widthScreen;
     private short _level; // 0-easy, 1-medium, 2-hard
@@ -138,6 +139,7 @@ public class CogitoController : MonoBehaviour
         
         _level = 2;
         // general settingss
+        BtnMenu.onClick.AddListener(GoToMenu);
         // when start method, the game has not started
         _playing = false;
         _ballDirection = 0;
@@ -620,5 +622,10 @@ public class CogitoController : MonoBehaviour
     public void CheckPlaySound()
     {
         _toPlaySound = !_toPlaySound;
+    }
+    
+    private void GoToMenu()
+    {
+        Loader.Load(Loader.Scene.MenuScene);
     }
 }
