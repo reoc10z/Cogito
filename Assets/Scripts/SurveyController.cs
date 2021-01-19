@@ -14,6 +14,7 @@ public class SurveyController : MonoBehaviour
     public GameObject PanelNasaInformation;
     public GameObject QuestionNasa;
     public Text WarningText;
+    public Text InitialInformationText;
     public Button BtnMenu;
     public int level = 2;
     private int nStage = -1; // start in -1
@@ -125,6 +126,7 @@ public class SurveyController : MonoBehaviour
     {
         if (nStage < 0)
         {
+            InitialInformationText.gameObject.SetActive(false);
             // activate nasa elements
             PanelNasaInformation.SetActive(true);
             QuestionNasa.SetActive(true);

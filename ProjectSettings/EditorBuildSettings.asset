@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/QuestionnaireScene.unity
     guid: cec03e38022d995f1b85e100d6b21a37
+  - enabled: 1
+    path: Assets/Scenes/PlayerDataScene.unity
+    guid: 582de58652ff1ad78b9cefd51b46b3cb
   m_configObjects: {}

@@ -43,7 +43,7 @@ public class NativeShareScript : MonoBehaviour {
         }
     }
 
-    private string ReadContentLogFile(string filePath)
+    private string ReadFile(string filePath)
     {
         // read filepath and return all text as one string
         return System.IO.File.ReadAllText(filePath);
@@ -66,7 +66,7 @@ public class NativeShareScript : MonoBehaviour {
                             "\n\n"+
                             "\n\n"+
                             "\n\n";
-        shareMessage += ReadContentLogFile(_logPathFile);
+        shareMessage += ReadFile(_logPathFile);
 
         isProcessing = true;
         yield return new WaitForEndOfFrame();

@@ -8,10 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Diagnostics;
 using System.IO;
+using UnityEditor;
 
 public class CogitoController : MonoBehaviour
 {
-    
+
     // general settings
     public Button BtnMenu;
     private float _deltaMovement;
@@ -22,7 +23,9 @@ public class CogitoController : MonoBehaviour
     private bool _toPlaySound = true;
     private int _nStage = 0;
     private string _pathLogFile;
+    private string _pathSettingsFile;
     private string _logs = "";
+    private int _cyclesByLevel;
 
     //Timers
     public float BallTimeCycle = 3.0f;
@@ -45,23 +48,150 @@ public class CogitoController : MonoBehaviour
     private float _center_intialX;
     private float _center_intialY;
     private float _xCurrent;
-    private short[] _xPositions = new short[] {1,2,3,4,5};  //from -6 to 6
+
+    private short[] _listBallPosition_level0 = new short[]
+        {1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5}; //from -6 to 6
+
+    private short[] _listBallPosition_level1 = new short[]
+        {-1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5}; //from -6 to 6
+
+    private short[] _listBallPosition_level2 = new short[]
+        {1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5}; //from -6 to 6
+
+    private short[] _listBallPosition;
     private short _ballPosition = 0;
     private short _nextBallPosition = 0;
-    private short _idxPositionX = 0;
+    private short _idxBallPosition = 0;
     private int _idxStimuli = 0;
     private int _ballDirection;
     private Vector3 _nextPosition;
     private bool _newPosition;
     public GameObject ArrowsPanel;
     private bool _allowBallMovement;
-    
+
     // question pattern: shown pattern to be learnt 
     public GameObject MatrixQuestion;
+
     private Image[] _listQuestionCells;
-    private static bool[] _pattern_0 = new bool[16] {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
-    private static bool[] _pattern_1 = new bool[16] {false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true};
-    private List<bool[]> _list_patterns = new List<bool[]>(){_pattern_0, _pattern_1};
+
+    //private static bool[] _pattern_0 = new bool[16] {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
+    //private static bool[] _pattern_1 = new bool[16] {false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true};
+    // TODO: remove below code lines after level tests
+    private static bool[] _pattern_0 = new bool[16]
+    {
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    };
+
+    private static bool[] _pattern_1 = new bool[16]
+    {
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    };
+
+    private static bool[] _pattern_2 = new bool[16]
+    {
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    };
+        
+
+    private static bool[] _pattern_3 = new bool[16]{
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    };
+
+private static bool[] _pattern_4 = new bool[16]
+    {
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+    };
+
+private static bool[] _pattern_5 = new bool[16] {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true};
+    private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>(){
+        _pattern_0, _pattern_1
+    };
+
+    private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
+    {
+        _pattern_2, _pattern_3
+    };
+
+    private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
+    {
+        _pattern_4, _pattern_5,
+    };
+    private List<bool[]> _listQuestionPatterns = new List<bool[]>();
     private short _kPattern = 0;
     
     // answer pattern: pattern to mark answers
@@ -95,38 +225,23 @@ public class CogitoController : MonoBehaviour
     void Awake()
     {
         _widthScreen = Screen.width;
+        // create setting file with level = 0
+        _pathSettingsFile = CreateFile("Settings_level.txt",0);
     }
-    
+
     // Start is called before the first frame update
     void Start()
     {
         // initial logs
         //Path of the file
         // TODO: this variable should be written into a settings file
-        if ( SystemInfo.deviceModel == "PC")
-        {
-            _pathLogFile = Application.dataPath + "/Log.txt";
-        }
-        else
-        {
-            _pathLogFile = Application.persistentDataPath + "/Log.txt";
-        }
+        _pathLogFile = CreateFile("Log.txt", 1);
+        
         // set path of log file to code for sharing
         //TODO: this setpath sould write it into a setting file
         print(_pathLogFile);
-
-        //Create File if it doesn't exist
-        if (!File.Exists(_pathLogFile)) {
-            File.WriteAllText(_pathLogFile, "\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
-        }
-        else
-        {
-            //append msg to log for adding later to log file
-            ToLog("\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
-        }
-
-        ToLog("-0- app starts: " + System.DateTime.Now );
         
+        ToLog("-0- app starts: " + System.DateTime.Now );
         ToLog("-0- screen size (w,h): " + _widthScreen + "," + Screen.height);
         ToLog("-0- mobile type: " + SystemInfo.deviceModel);
         ToLog("-0- android version: " + SystemInfo.operatingSystem);
@@ -137,7 +252,9 @@ public class CogitoController : MonoBehaviour
         // Initialize the plugin for vibrations
         Vibration.Init();
         
-        _level = 2;
+        // initiate variables for the next level
+        NextLevel();
+
         // general settingss
         BtnMenu.onClick.AddListener(GoToMenu);
         // when start method, the game has not started
@@ -158,7 +275,7 @@ public class CogitoController : MonoBehaviour
         Btn_OK.gameObject.SetActive(false);
 
         // enlist next pattern
-        NextPattern(_listQuestionCells, _list_patterns[_kPattern]);
+        NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
         _kPattern += 1;
         
         // ball
@@ -186,6 +303,7 @@ public class CogitoController : MonoBehaviour
         
         // haptic
         _isVibration = false;
+        
         // global timer 
         _zeit.Start();
         
@@ -245,6 +363,85 @@ public class CogitoController : MonoBehaviour
 
             _ballDirection = 0;
         }
+    }
+    
+    
+    private short GetNextLevel()
+    {
+        // read settings file
+        return short.Parse( ReadFile(_pathSettingsFile) );
+    }
+    
+    private void NextLevel()
+    {
+        _level = GetNextLevel();
+        if (_level > 2)
+        {
+            _level = 0;
+        }
+        
+        if (_level == 0)
+        {
+            // ball positions
+            _listBallPosition = _listBallPosition_level0;
+            // patterns
+            _listQuestionPatterns = _listQuestionPatterns_level0;
+        } else if (_level == 1)
+        {
+            // ball positions
+            _listBallPosition = _listBallPosition_level1;
+            // patterns
+            _listQuestionPatterns = _listQuestionPatterns_level1;
+        } else if (_level == 2)
+        {
+            // ball positions
+            _listBallPosition = _listBallPosition_level2;
+            // patterns
+            _listQuestionPatterns = _listQuestionPatterns_level2;
+        }
+
+        _idxBallPosition = 0;
+        
+        _cyclesByLevel = _listQuestionPatterns.Count;
+        // write next level into settings file:
+        File.WriteAllText(_pathSettingsFile, "" + (_level + 1) );
+        ToLog("-3- level starts: " + _level);
+    }
+
+    //type = 0 for a setting file
+    // type = 1 for log file. 
+    private string CreateFile(string fileName, int type)
+    {
+        string filepath;
+        if ( SystemInfo.deviceModel == "PC")
+        {
+            filepath =  Application.dataPath + "/" + fileName;
+        }
+        else
+        {
+            filepath = Application.persistentDataPath + "/" + fileName;
+        }
+
+        if (type == 0)
+        {
+            if (!File.Exists(filepath)) {
+                //Create File if it doesn't exist
+                File.WriteAllText(filepath, "0");
+            }
+        }
+        else if (type == 1)
+        {
+            if (!File.Exists(filepath)) {
+                //Create File if it doesn't exist
+                File.WriteAllText(filepath, "\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
+            }
+            else
+            {
+                //append msg to log for adding later to log file
+                ToLog("\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
+            }
+        }
+        return filepath;
     }
 
     private void SelectStage(long deltaTime)
@@ -359,6 +556,19 @@ public class CogitoController : MonoBehaviour
                 ArrowsPanel.SetActive(true);
                 _nStage = 0;
                 _timerFrame = _timesFrame[_nStage];
+                _cyclesByLevel -= 1;
+                if (_cyclesByLevel == 0)
+                {
+                    if (GetNextLevel() > 2)
+                    {
+                        // questionnaires scene
+                        Loader.Load(Loader.Scene.QuestionnaireScene);
+                    }
+                    else
+                    {
+                        NextLevel();
+                    }
+                }
             }
         } else if (_nStage == 5)
         {
@@ -408,10 +618,22 @@ public class CogitoController : MonoBehaviour
         _logs += msg;
         print(msg);
     }
+    
+    private string ReadFile(string filePath)
+    {
+        // read filepath and return all text as one string
+        return System.IO.File.ReadAllText(filePath);
+    }
+
+    private void WriteFile(string filePath, string msg)
+    {
+        File.AppendAllText(filePath, msg);
+    }
+    
     // writeLog assumes log file was already created under the path in _pathLogFile
     private void WriteLog()
     {
-        File.AppendAllText(_pathLogFile, _logs);
+        WriteFile(_pathLogFile, _logs);
         _logs = "";
     }
     private void BallController(bool on)
@@ -454,8 +676,8 @@ public class CogitoController : MonoBehaviour
     
     private void NextBallPosition()
     {
-        _nextBallPosition = _xPositions[_idxPositionX];
-        _idxStimuli = _nextBallPosition-1;
+        _nextBallPosition = _listBallPosition[_idxBallPosition];
+        _idxStimuli = Math.Abs(_nextBallPosition-1);
         //stimuli
         if (_level == 2)
         {
@@ -480,17 +702,8 @@ public class CogitoController : MonoBehaviour
         _nextPosition = new Vector3(_center_intialX + _nextBallPosition* _deltaMovement, _center_intialY, 0);
         _newPosition = true;
         
-        if (_idxPositionX < _xPositions.Length-1 )
-        {
-            // point to next position
-            _idxPositionX += 1;
-        }
-        else
-        {
-            // reset idx position
-            _idxPositionX = 0;
-        }
-        
+        // point to next position
+        _idxBallPosition += 1;
     }
 
     // typeMovement: +1(right) ; -1(left)
@@ -518,7 +731,7 @@ public class CogitoController : MonoBehaviour
             // show pattern
             MatrixQuestion.SetActive(true);
             ToLog("-20- system pattern: " + _kPattern + " : " + 
-                  String.Join(",", new List<bool>(_list_patterns[_kPattern]).ConvertAll(i => i.ToString()).ToArray())
+                  String.Join(",", new List<bool>(_listQuestionPatterns[_kPattern]).ConvertAll(i => i.ToString()).ToArray())
                   );
         }
         else
@@ -526,7 +739,7 @@ public class CogitoController : MonoBehaviour
             // hide pattern
             MatrixQuestion.SetActive(false);
             // enlist next pattern
-            NextPattern(_listQuestionCells, _list_patterns[_kPattern]);
+            NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
             _kPattern += 1;
             //TODO: REMOVE below code lines. This reset should not happen when playing
             if (_kPattern == 2)

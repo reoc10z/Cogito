@@ -18,6 +18,7 @@
           <e p="NativeShareScript.cs" t="Include" />
           <e p="SurveyController.cs" t="Include" />
         </e>
+        <e p="Settings_level.txt" t="Include" />
         <e p="Vibration" t="Include">
           <e p="Vibration.cs" t="Include" />
         </e>
