@@ -8,29 +8,38 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Diagnostics;
 using System.IO;
-using UnityEditor;
 
 public class CogitoController : MonoBehaviour
 {
 
     // general settings
-    public Button BtnMenu;
+    public Button BtnMenu; // TODO: remove code line
+    public Text TxtInstructions;
+    private string[] _instructions = new string[]
+    {
+        "",
+        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible",
+        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible,\n2- Memoriza el patrón", 
+        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible",
+        "1- Marca el patrón que memorizaste y pulsa OK"
+    };
     private float _deltaMovement;
     private float _widthScreen;
     private short _level; // 0-easy, 1-medium, 2-hard
     private bool _playing;
-    private bool _toVibrate = true;
-    private bool _toPlaySound = true;
+    private bool _toVibrate;
+    private bool _toPlaySound;
     private int _nStage = 0;
     private string _pathLogFile;
     private string _pathSettingsFile;
+    private string _pathTestVersionFile;
+    private string _testVersion;
     private string _logs = "";
     private int _cyclesByLevel;
 
     //Timers
     public float BallTimeCycle = 3.0f;
     private float _ballTime;
-    public float MatrixTimeCycle = 34.0f;
     private float _matrixTime;
     private readonly float _delayStimuliMs = 100; // 100 ms
     private long _timeSinceEndStimulus;
@@ -56,7 +65,8 @@ public class CogitoController : MonoBehaviour
         {-1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5}; //from -6 to 6
 
     private short[] _listBallPosition_level2 = new short[]
-        {1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5}; //from -6 to 6
+        {1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
+        //{1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5}; //from -6 to 6
 
     private short[] _listBallPosition;
     private short _ballPosition = 0;
@@ -222,41 +232,58 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     private long[] _vibrationTimePatterns; // array that includes the time length for each item in _vibratioPatterns
     private bool _isVibration;
 
+    private string GetPathFile(string fileName) 
+    {
+        if ( SystemInfo.deviceModel == "PC")
+        {
+            return  Application.dataPath + "/" + fileName;
+        }
+        else
+        {
+            return Application.persistentDataPath + "/" + fileName;
+        }
+    }
+    
     void Awake()
     {
         _widthScreen = Screen.width;
-        // create setting file with level = 0
-        _pathSettingsFile = CreateFile("Settings_level.txt",0);
+        // define path to setting file for level
+        _pathSettingsFile = GetPathFile("SettingsLevel.txt");
+        _pathTestVersionFile = GetPathFile("SettingsTestVersion.txt");
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        // initial logs
-        //Path of the file
-        // TODO: this variable should be written into a settings file
-        _pathLogFile = CreateFile("Log.txt", 1);
+        // keep screen always active
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         
-        // set path of log file to code for sharing
-        //TODO: this setpath sould write it into a setting file
+        // log file
+        _pathLogFile = GetPathFile("Log.txt");
         print(_pathLogFile);
         
-        ToLog("-0- app starts: " + System.DateTime.Now );
-        ToLog("-0- screen size (w,h): " + _widthScreen + "," + Screen.height);
-        ToLog("-0- mobile type: " + SystemInfo.deviceModel);
-        ToLog("-0- android version: " + SystemInfo.operatingSystem);
-        // TODO: _testVersion = get value of test version from settings file
-        string _testVersion = "haptic-auditory";
-        ToLog("-0- test version: " + _testVersion);
-        
-        // Initialize the plugin for vibrations
-        Vibration.Init();
-        
+        // test version: base, H, A, HA 
+        _testVersion = ReadFile(_pathTestVersionFile);
+        // If haptics:
+        if (_testVersion == "H" || _testVersion == "HA")
+        {
+            // Initialize the plugin for vibrations
+            Vibration.Init();
+            _toVibrate = true;
+        }
+        else
+            _toVibrate = false;
+        // If auditory:
+        if (_testVersion == "A" || _testVersion == "HA")
+            _toPlaySound = true;
+        else
+            _toPlaySound = false;
+
         // initiate variables for the next level
         NextLevel();
-
+        
         // general settingss
-        BtnMenu.onClick.AddListener(GoToMenu);
+        BtnMenu.onClick.AddListener(GoToMenu); // TODO: remove code line 
         // when start method, the game has not started
         _playing = false;
         _ballDirection = 0;
@@ -291,7 +318,8 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         
         // audio
         AudioPulses = GetComponents<AudioSource>();
-        // this variable will contain the duration each vibration pattern in ms. It includes the delay value used to synchronise audio and haptics stimuli
+        // this variable will contain the duration of each vibration pattern in ms. It includes the delay value used to synchronise audio and haptics stimuli
+        // it will be used to wait for the whole stimulus to later move the ball
         _vibrationTimePatterns = new long[_vibrationPatterns.Count];
         int k = 0;
         foreach (long[] vP in _vibrationPatterns)
@@ -366,7 +394,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     }
     
     
-    private short GetNextLevel()
+    private short GetLevel()
     {
         // read settings file
         return short.Parse( ReadFile(_pathSettingsFile) );
@@ -374,7 +402,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     
     private void NextLevel()
     {
-        _level = GetNextLevel();
+        _level = GetLevel();
         if (_level > 2)
         {
             _level = 0;
@@ -403,177 +431,141 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         _idxBallPosition = 0;
         
         _cyclesByLevel = _listQuestionPatterns.Count;
-        // write next level into settings file:
-        File.WriteAllText(_pathSettingsFile, "" + (_level + 1) );
-        ToLog("-3- level starts: " + _level);
-    }
-
-    //type = 0 for a setting file
-    // type = 1 for log file. 
-    private string CreateFile(string fileName, int type)
-    {
-        string filepath;
-        if ( SystemInfo.deviceModel == "PC")
-        {
-            filepath =  Application.dataPath + "/" + fileName;
-        }
-        else
-        {
-            filepath = Application.persistentDataPath + "/" + fileName;
-        }
-
-        if (type == 0)
-        {
-            if (!File.Exists(filepath)) {
-                //Create File if it doesn't exist
-                File.WriteAllText(filepath, "0");
-            }
-        }
-        else if (type == 1)
-        {
-            if (!File.Exists(filepath)) {
-                //Create File if it doesn't exist
-                File.WriteAllText(filepath, "\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
-            }
-            else
-            {
-                //append msg to log for adding later to log file
-                ToLog("\n\nLog File starts at: " + System.DateTime.Now + "\n\n");
-            }
-        }
-        return filepath;
     }
 
     private void SelectStage(long deltaTime)
     {
         if (_nStage == 0) 
         {
+            // after click Start, game will wait for 2 seconds to start
             if (_timerFrame > 0)
             {
                 _timerFrame -= deltaTime;
             }
             else
             {
-                // after click Start, game will wait 2 seconds to start
+                // go to next stage
                 _nStage = 1;
                 _timerFrame = _timesFrame[_nStage];
                 _timerBall = BallTimeCycle; // 3 seconds
+                TxtInstructions.text = _instructions[_nStage];
                 BallController(true);
             }
         } else if (_nStage == 1) 
         {
-                // ball
-                if (_timerBall > 0)
-                {
-                    _timerBall -= deltaTime;
-                }
-                else
-                {
-                    // move ball
-                    BallController(true);
-                    // reset ball timer
-                    _timerBall = BallTimeCycle; // 3.0f
-                }
+            // stage 1 shows only the ball
+            // ball
+            if (_timerBall > 0)
+            {
+                _timerBall -= deltaTime;
+            }
+            else
+            {
+                // move ball
+                BallController(true);
+                // reset ball timer
+                _timerBall = BallTimeCycle; // 3.0f
+            }
                 
-                // next-frame timer
-                if (_timerFrame > 0)
-                {
-                    _timerFrame -= deltaTime;
-                }
-                else
-                {
-                    _nStage = 2;
-                    _timerFrame = _timesFrame[_nStage];
-                    MatrixQuestionController(true);
-                }
+            // next-frame timer
+            if (_timerFrame > 0)
+            {
+                _timerFrame -= deltaTime;
+            }
+            else
+            {
+                // go to next stage
+                _nStage = 2;
+                _timerFrame = _timesFrame[_nStage];
+                TxtInstructions.text = _instructions[_nStage];
+                MatrixQuestionController(true);
+            }
                 
         } else if (_nStage == 2) 
         {
-                // ball
-                if (_timerBall > 0)
-                {
-                    _timerBall -= deltaTime;
-                }
-                else
-                {
-                    // move ball
-                    BallController(true);
-                    // reset ball timer
-                    _timerBall = BallTimeCycle; // 3.0f
-                }
+            // stage 2 shows the ball and the pattern to be recalled
+            // ball
+            if (_timerBall > 0)
+            {
+                _timerBall -= deltaTime;
+            }
+            else
+            {
+                // move ball
+                BallController(true);
+                // reset ball timer
+                _timerBall = BallTimeCycle; // 3.0f
+            }
 
-                // next-frame timer
-                if (_timerFrame > 0)
-                {
-                    _timerFrame -= deltaTime;
-                }
-                else
-                {
-                    _nStage = 3;
-                    _timerFrame = _timesFrame[_nStage];
-                    MatrixQuestionController(false);
-                }
+            // next-frame timer
+            if (_timerFrame > 0)
+            {
+                _timerFrame -= deltaTime;
+            }
+            else
+            {
+                // go to next stage
+                _nStage = 3;
+                _timerFrame = _timesFrame[_nStage];
+                TxtInstructions.text = _instructions[_nStage];
+                MatrixQuestionController(false);
+            }
                 
         } else if (_nStage == 3) 
         {
-                // ball
-                if (_timerBall > 0)
-                {
-                    _timerBall -= deltaTime;
-                }
-                else
-                {
-                    // move ball
-                    BallController(true);
-                    // reset ball timer
-                    _timerBall = BallTimeCycle; // 3.0f
-                }
+            // stage 2 shows only the ball
+            // ball
+            if (_timerBall > 0)
+            {
+                _timerBall -= deltaTime;
+            }
+            else
+            {
+                // move ball
+                BallController(true);
+                // reset ball timer
+                _timerBall = BallTimeCycle; // 3.0f
+            }
                 
-                // next-frame timer
-                if (_timerFrame > 0)
-                {
-                    _timerFrame -= deltaTime;
-                }
-                else
-                {
-                    _nStage = 4;
-                    _timerFrame = _timesFrame[_nStage];
-                    BallController(false);
-                    MatrixAnswerController(true);
-                } 
+            // next-frame timer
+            if (_timerFrame > 0)
+            {
+                _timerFrame -= deltaTime;
+            }
+            else
+            {
+                // go to next stage
+                _nStage = 4;
+                _timerFrame = _timesFrame[_nStage];
+                TxtInstructions.text = _instructions[_nStage];
+                BallController(false);
+                MatrixAnswerController(true);
+            } 
         } else if (_nStage == 4)
         {
+            // stage 2 shows a matrix where the user has to recall the pattern
             // next-frame timer
             if (_timerFrame > 0)
             {
                 _timerFrame -= deltaTime;
             }
             else 
-            { 
+            {
+                // go to next stage
                 MatrixAnswerController(false); 
                 Ruler.SetActive(true);
                 Ball.SetActive(true);
                 ArrowsPanel.SetActive(true);
                 _nStage = 0;
                 _timerFrame = _timesFrame[_nStage];
+                TxtInstructions.text = _instructions[_nStage];
                 _cyclesByLevel -= 1;
                 if (_cyclesByLevel == 0)
                 {
-                    if (GetNextLevel() > 2)
-                    {
-                        // questionnaires scene
-                        Loader.Load(Loader.Scene.QuestionnaireScene);
-                    }
-                    else
-                    {
-                        NextLevel();
-                    }
+                    GoToNextScene();
                 }
             }
-        } else if (_nStage == 5)
-        {
-                
-        }
+        } 
     }
 
     // CheckIfStimuliEnded: it checks if primmed stimuli have ended and returns a boolean
@@ -677,7 +669,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     private void NextBallPosition()
     {
         _nextBallPosition = _listBallPosition[_idxBallPosition];
-        _idxStimuli = Math.Abs(_nextBallPosition-1);
+        _idxStimuli = Math.Abs(_nextBallPosition)-1;
         //stimuli
         if (_level == 2)
         {
@@ -741,11 +733,6 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             // enlist next pattern
             NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
             _kPattern += 1;
-            //TODO: REMOVE below code lines. This reset should not happen when playing
-            if (_kPattern == 2)
-            {
-                _kPattern = 0;
-            }
         }
     }
 
@@ -808,7 +795,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        ToLog("-1- game starts");
+        ToLog("-1- level starts: " + _level);
     }
 
     private void BtnOKanswer()
@@ -827,6 +814,15 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         }
     }
 
+    private void GoToNextScene()
+    {
+        ToLog("-2- level ends: " + _level);
+        WriteLog();
+        Loader.Load(Loader.Scene.QuestionnaireScene);
+    }
+
+    
+    // TODO: below code can be removed
     public void CheckVibrate()
     {
         _toVibrate = !_toVibrate;

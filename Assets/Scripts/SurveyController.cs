@@ -14,12 +14,13 @@ public class SurveyController : MonoBehaviour
     public GameObject PanelNasaInformation;
     public GameObject QuestionNasa;
     public Text WarningText;
-    public Text InitialInformationText;
+    public Text InformationText;
     public Button BtnMenu;
-    public int level = 2;
-    private int nStage = -1; // start in -1
+    private int _level;
+    private int nStage = 0; // start in -1
     private string _pathLogFile;
     private string _logs = "";
+    private string _pathSettingsFile;
     
     // Timers
     private Stopwatch _zeit = new Stopwatch();
@@ -60,6 +61,7 @@ public class SurveyController : MonoBehaviour
     
     void Start()
     {
+        // general variables
         BtnMenu.onClick.AddListener(GoToMenu);
         
         HandleSliderImg = HandleSlider.GetComponent<Image>().gameObject;
@@ -72,22 +74,15 @@ public class SurveyController : MonoBehaviour
         QuestionVibration.SetActive(false);
         QuestionSound.SetActive(false);
         
-        // initial logs
-        //Path of the file
-        if ( SystemInfo.deviceModel == "PC")
-        {
-            _pathLogFile = Application.dataPath + "/Log.txt";
-        }
-        else
-        {
-            _pathLogFile = Application.persistentDataPath + "/Log.txt";
-        }
+        // Path to log file
+        _pathLogFile = GetPathFile("Log.txt");
         
+        // define level for the current questionnaire
+        _pathSettingsFile = GetPathFile("SettingsLevel.txt");
+        _level = GetLevel();
+            
         // global timer 
         _zeit.Start();
-        
-        //append msg to log for adding later to log file
-        ToLog("-30- survey starts: " + System.DateTime.Now );
     }
     
     void FixedUpdate()
@@ -110,6 +105,13 @@ public class SurveyController : MonoBehaviour
         _logs = "";
     }
     
+    private string ReadFile(string filePath)
+    {
+        // read filepath and return all text as one string
+        return System.IO.File.ReadAllText(filePath);
+    }
+    
+    
     public void OnValueChangedSlider(float value)
     {
         if (waitingFirstClick)
@@ -122,20 +124,38 @@ public class SurveyController : MonoBehaviour
         print(sliderValue);
     }
     
+    private string GetPathFile(string fileName) 
+    {
+        if ( SystemInfo.deviceModel == "PC")
+        {
+            return  Application.dataPath + "/" + fileName;
+        }
+        else
+        {
+            return Application.persistentDataPath + "/" + fileName;
+        }
+    }
+    
+    private short GetLevel()
+    {
+        // read settings file
+        return short.Parse( ReadFile(_pathSettingsFile) );
+    }
+    
     public void OnClickBtnNext()
     {
-        if (nStage < 0)
+        if (nStage == 0)
         {
-            InitialInformationText.gameObject.SetActive(false);
+            // deactivate previous objects
+            InformationText.gameObject.SetActive(false);
             // activate nasa elements
             PanelNasaInformation.SetActive(true);
             QuestionNasa.SetActive(true);
-            
-            // make ready next question
-            nStage = 0;
-            ResetSlider();
-            ToLog("-31- next question starts");
-        } else if (nStage < 5)
+            // make ready the first nasa question
+            //append msg to log for adding later to log file
+            ToLog("-3- survey starts at: " + System.DateTime.Now );
+            NextQuestion();
+        } else if (nStage < 7)
         {
             if (waitingFirstClick)
             {
@@ -144,51 +164,46 @@ public class SurveyController : MonoBehaviour
             else
             {
                 WarningText.text = "";
-                // capture results from slider
-                // log message
-                ToLog("-32- question: " + (nStage) + " : " + questions[nStage] + " : " + sliderValue);
-
-                // make ready next question
-                nStage += 1;
-                ResetSlider();
-                ToLog("-31- next question starts");
+                // capture results from previous question, i.e. slider
+                ToLog("-32- question: " + (nStage-1) + " : " + questions[nStage-1] + " : " + sliderValue);
+                if (nStage < 6)
+                {
+                    // make ready next question
+                    NextQuestion();
+                }
+                else
+                {
+                    // if it is last question, test if go to next question or next level
+                    if (_level == 2)
+                        NextQuestion();
+                    else
+                    {
+                        GoToNextScene();
+                    } 
+                }
+                    
+                
             }
         }
-        else if (nStage == 5 && level == 2)
+        else if (nStage == 7)
         {
-            // capture results from slider
+            if (GetSelectedToggle(ToggleGroupS) is null || GetSelectedToggle(ToggleGroupV) is null)
+            {
+                WarningText.text = "Responde todas las preguntas";
+                return;
+            }
+            WarningText.text = "";
+            // get toggle answer
             // log message
-            ToLog("-32- question: " + (nStage) + " : " + questions[nStage] + " : " + sliderValue);
-            nStage += 1;
+            ToLog("-33- sound question : " + GetSelectedToggle(ToggleGroupS));
+            ToLog("-34- vibration question : " + GetSelectedToggle(ToggleGroupV));
+            NextQuestion();
             
-            // section for questions about sounds and vibrations
-            
-            // deactivate elements for nasa
-            PanelNasaInformation.SetActive(false);
-            QuestionNasa.SetActive(false);
-        
-            // activate elements for other questions
-            ToLog("-31- next question starts");
-            QuestionVibration.SetActive(true);
-            QuestionSound.SetActive(true);
-        }
-        else
+        } else if (nStage == 8)
         {
-            if (level < 2)
-            {
-                // go to next level
-                print("next game level");
-            }
-            else if (nStage == 6 && level == 2)
-            {
-                // get toggle answer
-                // log message
-                ToLog("-33- sound question : " + GetSelectedToggle(ToggleGroupS));
-                ToLog("-34- vibration question : " + GetSelectedToggle(ToggleGroupV));
-
-                // go to main for sending data
-                nStage += 1;
-            }
+            WarningText.text = "";
+            // go to main for sending data
+            GoToNextScene();
         }
     }
 
@@ -198,28 +213,79 @@ public class SurveyController : MonoBehaviour
         foreach (var t in toggles)
         {
             //returns selected toggle
-            if (t.isOn)
-            {
-                if (t.name == "ToggleY") return "yes";
-                return "no";
-            }
+            if (t.isOn) return t.name;
         }
-              
         return null;           // if nothing is selected return null
     }
-    
-    private void ResetSlider()
+
+    //reset slider and make ready text for next question
+    private void NextQuestion()
     {
-        HandleSliderImg.SetActive(false);
-        waitingFirstClick = true;
-        TextQuestionNasa.text = questions[nStage];
-        TextQuestionN.text = (nStage + 1) + " de 6";
-        TextExplanationNasa.text = explanations[nStage];
+        if (nStage < 6)
+        {
+            // NASA questions
+            // set values for components
+            HandleSliderImg.SetActive(false);
+            waitingFirstClick = true;
+            TextQuestionNasa.text = questions[nStage];
+            TextQuestionN.text = (nStage + 1) + " de 6";
+            TextExplanationNasa.text = explanations[nStage];
+            
+            // log message
+            ToLog("-31- next question starts");
+        }
+        else if (nStage == 6)
+        {
+            // SOUND and VIBRATION questions
+            // deactivate elements for nasa
+            PanelNasaInformation.SetActive(false);
+            QuestionNasa.SetActive(false);
+            // activate elements for other questions
+            QuestionVibration.SetActive(true);
+            QuestionSound.SetActive(true);
+            
+            // log message
+            ToLog("-31- next question starts");
+        }
+        else
+        {
+            // screen to say thank you
+            // deactivate elements for other questions
+            QuestionVibration.SetActive(false);
+            QuestionSound.SetActive(false);
+            
+            InformationText.gameObject.SetActive(true);
+            InformationText.text = "¡Muchas gracias por tu participación! :). \n\n " +
+                                   "Ahora envia un correo con tus resultados usando el botón Enviar Resultados \n" +
+                                   "en la siguiente pantalla";
+        }
+        nStage += 1;
+    }
+
+    
+    private void GoToNextScene()
+    {
+        // write next level into settings file:
+        int nextLevel = _level + 1;
+        if (nextLevel < 3)
+        {
+            // go to next level game
+            File.WriteAllText(_pathSettingsFile, "" + nextLevel );
+            ToLog("-4- survey ends");
+            WriteLog();
+            Loader.Load(Loader.Scene.GameScene);
+        }
+        else
+        {
+            ToLog("-4- survey ends");
+            WriteLog();
+            // end game
+            Loader.Load(Loader.Scene.MenuScene);
+        }
     }
 
     private void GoToMenu()
     {
         Loader.Load(Loader.Scene.MenuScene);
     }
-    
 }

@@ -6,33 +6,23 @@ using UnityEngine.UI;
 public class NativeShareScript : MonoBehaviour {
     private bool isProcessing = false;
     private bool isFocus = false;
-    //public GameObject CodeObjetc;
-    //private CogitoController Cogito;
-    private string _logPathFile;
+    private string _pathLogFile;
 
     public void Awake()
     {
-        //Cogito = CodeObjetc.GetComponent<CogitoController>();
-        _logPathFile = GetPath();
+        _pathLogFile = GetPathFile("Log.txt");
     }
-
-    private string GetPath()
+    
+    private string GetPathFile(string fileName) 
     {
-        string path;
-        // TODO this should be read from a settings file
-        // initial logs
-        //Path of the file
-        // TODO: this variable should be written into a settings file
         if ( SystemInfo.deviceModel == "PC")
         {
-            path = Application.dataPath + "/Log.txt";
+            return  Application.dataPath + "/" + fileName;
         }
         else
         {
-            path = Application.persistentDataPath + "/Log.txt";
+            return Application.persistentDataPath + "/" + fileName;
         }
-
-        return path;
     }
     
     public void ShareBtnPress()
@@ -66,7 +56,7 @@ public class NativeShareScript : MonoBehaviour {
                             "\n\n"+
                             "\n\n"+
                             "\n\n";
-        shareMessage += ReadFile(_logPathFile);
+        shareMessage += ReadFile(_pathLogFile);
 
         isProcessing = true;
         yield return new WaitForEndOfFrame();

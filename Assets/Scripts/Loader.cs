@@ -7,8 +7,8 @@ public static class Loader
 {
     public enum Scene
     {
-        PlayerDataScene,
         MenuScene,
+        PlayerDataScene,
         GameScene,
         QuestionnaireScene,
     }

@@ -16,9 +16,11 @@
           <e p="Loader.cs" t="Include" />
           <e p="MenuController.cs" t="Include" />
           <e p="NativeShareScript.cs" t="Include" />
+          <e p="PersonalDataController.cs" t="Include" />
           <e p="SurveyController.cs" t="Include" />
         </e>
-        <e p="Settings_level.txt" t="Include" />
+        <e p="SettingsLevel.txt" t="Include" />
+        <e p="SettingsTestVersion.txt" t="Include" />
         <e p="Vibration" t="Include">
           <e p="Vibration.cs" t="Include" />
         </e>
