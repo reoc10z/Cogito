@@ -57,20 +57,25 @@ public class CogitoController : MonoBehaviour
     private float _center_intialX;
     private float _center_intialY;
     private float _xCurrent;
-
+    // ball postiion values in range [-6,6] excluding 0
     private short[] _listBallPosition_levelTraining =
         {5, -6, 6, 3, 4, 1, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
     
     private short[] _listBallPosition_level0 = new short[]
-        {5, -6, 6, 3, 4, -5, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
-
+        {-6, -4, -2, -4, -2, -3,  1, -5, -1,  4,  2, -5, -4, -5,  4, -6, -4,
+            5,  4, -4,  3, -1,  6,  1, -3, -2,  1,  4, -4,  1, -2, -1,  3,  5,
+            3,  2, -3, -2,  2, -4, -5,  5, -1, -2,  2, -5,  3,  1,  2, -6, -1,
+            5, -5,  5, -5,  3, -4, -1,  3, -6};
     private short[] _listBallPosition_level1 = new short[]
-        {-1, 0, -3, -4, -5, -6, -1, -2, -3, -4, -5, -6, -1, -2, -3, -4, -5, -1, -2, -3}; //from -6 to 6
-
+        {-1,  5,  1,  4, -3, -1,  2, -3,  6, -4, -6, -4, -2,  4, -3, -6, -1,
+            -3, -2,  1, -1, -2,  1,  3,  2,  6, -2,  6, -5, -4, -2, -4, -5,  3,
+            -3, -1,  6,  5, -4,  3,  1,  5,  6,  3,  1,  3, -1,  5,  6,  3, -3,
+            3, -1,  3, -3, -4, -2,  4, -5, -1};
     private short[] _listBallPosition_level2 = new short[]
-        {1, 0, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
-        //{1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5}; //from -6 to 6
-
+        {-2, -4, -2,  2, -6, -1, -3,  1, -1, -2,  4,  6,  5,  1, -1,  6, -5,
+            -2, -4,  4,  1,  4, -3,  1, -3,  6, -1, -2, -1,  5,  1,  2, -2,  6,
+            -2, -1,  2,  1, -4, -1,  3, -6,  2,  4, -5,  3, -4,  3, -2,  1, -6,
+            4, -5,  4,  3, -5,  4,  6,  5,  6};
     private short[] _listBallPosition;
     private short _ballPosition = 0;
     private short _nextBallPosition = 0;
