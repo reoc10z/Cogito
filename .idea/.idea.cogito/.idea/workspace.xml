@@ -20,18 +20,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/QuestionnaireScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/QuestionnaireScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Loader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Loader.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PersonalDataController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PersonalDataController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,20 +48,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Scripts/BallController.cs" />
-        <option value="$PROJECT_DIR$/Assets/Vibration/Vibration.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Share.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ObjectStore.cs" />
-        <option value="$PROJECT_DIR$/Assets/Editor/SceneAutoLoader.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/NasaController.cs" />
-        <option value="$PROJECT_DIR$/Assets/Settings_level.txt" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Loader.cs" />
-        <option value="$PROJECT_DIR$/Assets/LogFile.txt" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PersonalDataController.cs" />
         <option value="$PROJECT_DIR$/Assets/SettingsLevel.txt" />
         <option value="$PROJECT_DIR$/Assets/SettingsTestVersion.txt" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/PersonalDataController.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/SurveyController.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
       </list>
@@ -135,7 +121,8 @@
       <workItem from="1611006332455" duration="7780000" />
       <workItem from="1611015853971" duration="144000" />
       <workItem from="1611071244817" duration="3481000" />
-      <workItem from="1611088832158" duration="24596000" />
+      <workItem from="1611088832158" duration="35511000" />
+      <workItem from="1611178093584" duration="386000" />
     </task>
     <servers />
   </component>

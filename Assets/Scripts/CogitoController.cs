@@ -13,14 +13,14 @@ public class CogitoController : MonoBehaviour
 {
 
     // general settings
-    public Button BtnMenu; // TODO: remove code line
     public Text TxtInstructions;
+    public GameObject ScreenMsg;
     private string[] _instructions = new string[]
     {
         "",
-        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible",
-        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible,\n2- Memoriza el patrón", 
-        "1- Después de que la app mueva la pelota, llévala al centro de la regla lo más rápido posible",
+        "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
+        "1- Mueva la pelota al centro de la regla lo más rápido que puedas,\n2- y memoriza el patrón", 
+        "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
         "1- Marca el patrón que memorizaste y pulsa OK"
     };
     private float _deltaMovement;
@@ -38,14 +38,14 @@ public class CogitoController : MonoBehaviour
     private int _cyclesByLevel;
 
     //Timers
-    public float BallTimeCycle = 3.0f;
+    public float BallTimeCycle = 3000.0f;
     private float _ballTime;
     private float _matrixTime;
     private readonly float _delayStimuliMs = 100; // 100 ms
     private long _timeSinceEndStimulus;
     private float _timeSinceAudioPlay;
     private float _timeSinceVibrationStarts;
-    public int[] _timesFrame = new int[] {2000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
+    public int[] _timesFrame = new int[] {1000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
     private float _timerFrame;
     private float _timerBall;
     private Stopwatch _zeit = new Stopwatch();
@@ -58,14 +58,17 @@ public class CogitoController : MonoBehaviour
     private float _center_intialY;
     private float _xCurrent;
 
+    private short[] _listBallPosition_levelTraining =
+        {5, -6, 6, 3, 4, 1, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
+    
     private short[] _listBallPosition_level0 = new short[]
-        {1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5}; //from -6 to 6
+        {5, -6, 6, 3, 4, -5, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
 
     private short[] _listBallPosition_level1 = new short[]
-        {-1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5, -1, -2, -3, -4, -5}; //from -6 to 6
+        {-1, 0, -3, -4, -5, -6, -1, -2, -3, -4, -5, -6, -1, -2, -3, -4, -5, -1, -2, -3}; //from -6 to 6
 
     private short[] _listBallPosition_level2 = new short[]
-        {1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
+        {1, 0, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
         //{1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5, 1, -2, 3, -4, 5}; //from -6 to 6
 
     private short[] _listBallPosition;
@@ -81,52 +84,14 @@ public class CogitoController : MonoBehaviour
 
     // question pattern: shown pattern to be learnt 
     public GameObject MatrixQuestion;
-
     private Image[] _listQuestionCells;
-
-    //private static bool[] _pattern_0 = new bool[16] {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
-    //private static bool[] _pattern_1 = new bool[16] {false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true};
+    private List<bool[]> _listQuestionPatterns = new List<bool[]>();
+    private short _kPattern = 0;
+    // patterns by level
+    private static bool[] _pattern_end = new bool[16]; // so, it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
+    private static bool[] _pattern_0 = new bool[16] { true, true, false, false, true, true, false, false, false, false, false, false, false, false, false, false };
+    private static bool[] _pattern_1 = new bool[16] { true, true, false, false, false, true, true, false, false, false, true, true, false, false, false, false };
     // TODO: remove below code lines after level tests
-    private static bool[] _pattern_0 = new bool[16]
-    {
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    };
-
-    private static bool[] _pattern_1 = new bool[16]
-    {
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    };
-
     private static bool[] _pattern_2 = new bool[16]
     {
         false,
@@ -146,7 +111,6 @@ public class CogitoController : MonoBehaviour
         false,
         false
     };
-        
 
     private static bool[] _pattern_3 = new bool[16]{
         false,
@@ -166,8 +130,8 @@ public class CogitoController : MonoBehaviour
         false,
         false
     };
-
-private static bool[] _pattern_4 = new bool[16]
+    
+    private static bool[] _pattern_4 = new bool[16]
     {
         false,
         false,
@@ -187,23 +151,26 @@ private static bool[] _pattern_4 = new bool[16]
         true
     };
 
-private static bool[] _pattern_5 = new bool[16] {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true};
+    private static bool[] _pattern_5 = new bool[16] {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true};
+    
+    private List<bool[]> _listQuestionPatterns_levelTraining = new List<bool[]>(){
+        _pattern_0, _pattern_1, _pattern_end
+    };
+    
     private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>(){
-        _pattern_0, _pattern_1
+        _pattern_0, _pattern_1, _pattern_end
     };
 
     private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
     {
-        _pattern_2, _pattern_3
+        _pattern_2, _pattern_3, _pattern_end
     };
 
     private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
     {
-        _pattern_4, _pattern_5,
+        _pattern_4, _pattern_5, _pattern_end
     };
-    private List<bool[]> _listQuestionPatterns = new List<bool[]>();
-    private short _kPattern = 0;
-    
+
     // answer pattern: pattern to mark answers
     public GameObject MatrixAnswer;
     private Toggle[] _listAnswerCells;
@@ -283,27 +250,21 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         NextLevel();
         
         // general settingss
-        BtnMenu.onClick.AddListener(GoToMenu); // TODO: remove code line 
-        // when start method, the game has not started
-        _playing = false;
+        _playing = false; // when start method, the game has not started
         _ballDirection = 0;
-
-        //timers
-        _timeSinceEndStimulus = 0;
-                
+        ScreenMsg.SetActive(true); // activate welcome message
+        ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
+        
         // question pattern
         _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
-        MatrixQuestion.SetActive(false); //turn off pattern
-        
+        _kPattern = 0;
+        MatrixQuestionController(false); // turn off pattern but enlist next pattern
         // answer pattern
         _listAnswerCells = MatrixAnswer.GetComponentsInChildren<Toggle>().ToArray();
-        Btn_OK.onClick.AddListener(BtnOKanswer);
         MatrixAnswer.SetActive(false);
+        Btn_OK.onClick.AddListener(BtnOKanswer);
         Btn_OK.gameObject.SetActive(false);
-
-        // enlist next pattern
-        NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
-        _kPattern += 1;
+        
         
         // ball
         // initial ball position
@@ -332,16 +293,14 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         // haptic
         _isVibration = false;
         
-        // global timer 
-        _zeit.Start();
-        
-        //_currentTime = zeit.ElapsedMilliseconds;
-        //toLog(_currentTime + ": app starts");
+        //timers
+        _timeSinceEndStimulus = 0; // stimuli timer
+        _zeit.Start(); // global timer 
     }
     
     void FixedUpdate()
     {
-        // write log messages to log file
+        // write log messages to log file: it is written every fixed time in order to do not delay the app when writting into disk
         WriteLog();
     }
 
@@ -369,7 +328,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
                         // Move ball to next predefined position by the game
                         Ball.transform.position = _nextPosition;
                         _ballPosition = _nextBallPosition;
-                        ToLog("-10-system ball position: " + _ballPosition);
+                        ToLog("_10_ system ball position _ " + _ballPosition);
                         _newPosition = false;
                     }
                 }
@@ -407,36 +366,51 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         {
             _level = 0;
         }
-        
-        if (_level == 0)
+
+        if (_level == -1)
         {
+            // level TRAINING
+            BallTimeCycle = 5000.0f; // usually it is 3000.0f, but 5000.0 to warm up
+            _timesFrame = new int[] {2000, 10000, 15000, 4000, 15000}; // more time for warming up
+            // ball positions
+            _listBallPosition = _listBallPosition_levelTraining;
+            // patterns
+            _listQuestionPatterns = _listQuestionPatterns_levelTraining;
+        }
+        else if (_level == 0)
+        {
+            // level BASIC
             // ball positions
             _listBallPosition = _listBallPosition_level0;
             // patterns
             _listQuestionPatterns = _listQuestionPatterns_level0;
         } else if (_level == 1)
         {
+            // level MIDDLE
             // ball positions
             _listBallPosition = _listBallPosition_level1;
             // patterns
             _listQuestionPatterns = _listQuestionPatterns_level1;
         } else if (_level == 2)
         {
+            // level HEAVY
             // ball positions
             _listBallPosition = _listBallPosition_level2;
             // patterns
             _listQuestionPatterns = _listQuestionPatterns_level2;
         }
-
-        _idxBallPosition = 0;
         
-        _cyclesByLevel = _listQuestionPatterns.Count;
+        _idxBallPosition = 0; // reset index of ball position
+        
+        // get number of patters to show by level
+        _cyclesByLevel = _listQuestionPatterns.Count-1; // -1 because one extra pattern is added at the end of each list. It was done to keep working the code logic of a predictive brain
     }
 
     private void SelectStage(long deltaTime)
     {
         if (_nStage == 0) 
         {
+            // stage 0 shows a message to prepare user for next game
             // after click Start, game will wait for 2 seconds to start
             if (_timerFrame > 0)
             {
@@ -444,7 +418,9 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             }
             else
             {
-                // go to next stage
+                // deactivate welcome message
+                ScreenMsg.SetActive(false);
+                // go to next stage: 1
                 _nStage = 1;
                 _timerFrame = _timesFrame[_nStage];
                 _timerBall = BallTimeCycle; // 3 seconds
@@ -504,7 +480,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             }
             else
             {
-                // go to next stage
+                // go to next stage: 3
                 _nStage = 3;
                 _timerFrame = _timesFrame[_nStage];
                 TxtInstructions.text = _instructions[_nStage];
@@ -513,7 +489,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
                 
         } else if (_nStage == 3) 
         {
-            // stage 2 shows only the ball
+            // stage 3 shows only the ball
             // ball
             if (_timerBall > 0)
             {
@@ -534,7 +510,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             }
             else
             {
-                // go to next stage
+                // go to next stage: 4
                 _nStage = 4;
                 _timerFrame = _timesFrame[_nStage];
                 TxtInstructions.text = _instructions[_nStage];
@@ -543,7 +519,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             } 
         } else if (_nStage == 4)
         {
-            // stage 2 shows a matrix where the user has to recall the pattern
+            // stage 4 shows a matrix where the user has to recall the pattern
             // next-frame timer
             if (_timerFrame > 0)
             {
@@ -551,8 +527,10 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             }
             else 
             {
-                // go to next stage
-                MatrixAnswerController(false); 
+                // go to next stage: 0
+                MatrixAnswerController(false);
+                ScreenMsg.SetActive(true); // activate welcome message
+                ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
                 Ruler.SetActive(true);
                 Ball.SetActive(true);
                 ArrowsPanel.SetActive(true);
@@ -579,7 +557,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
                 {
                     // when audio-play ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("-13- sound ends: " + (_idxStimuli + 1) );
+                    ToLog("_13_ sound ends _ " + (_idxStimuli + 1) );
                     _isAudio = false;
                     // vibration is false, just in case audio and vibrations are executed in parallel
                     _isVibration = false; // after testing, vibration always ends before the auditory stimulus
@@ -594,7 +572,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
                 {
                     // when vibration ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("-15- vibration ends: " + (_idxStimuli + 1) );
+                    ToLog("_15_ vibration ends _ " + (_idxStimuli + 1) );
                     _isVibration = false;
                     _isAudio = false; // because if.
                 }
@@ -603,9 +581,11 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         return !(_isAudio | _isVibration);
     }
     
-    // append new message to the general log message 
+    // append new message to the general log message
     private void ToLog(string msg)
     {
+        if (_level < 0) 
+            return; // if TESTING level do not log
         msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
         _logs += msg;
         print(msg);
@@ -643,7 +623,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             _allowBallMovement = false;
             Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
             _ballPosition = 0;
-            ToLog("-10- system ball position: " + _ballPosition);
+            ToLog("_10_ system ball position _ " + _ballPosition);
             Ball.SetActive(false);
             Ruler.SetActive(false);
             ArrowsPanel.SetActive(false);
@@ -653,7 +633,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     private void Vibrate(long[] vibrationPattern)
     {
         _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
-        ToLog("-14- vibration starts: " + (_idxStimuli + 1));
+        ToLog("_14_ vibration starts _ " + (_idxStimuli + 1));
         Vibration.Vibrate(vibrationPattern, -1);
         _isVibration = true;
     }
@@ -661,7 +641,7 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
     private void PlaySound(AudioSource _audio)
     {
         _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-        ToLog("-12- sound starts: "+ (_idxStimuli + 1) );
+        ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) );
         _audio.Play(0);
         _isAudio = true;
     }
@@ -706,13 +686,13 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             // right
             Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
             _ballPosition += 1;
-            ToLog("-11- user ball position: "+_ballPosition);
+            ToLog("_11_ user ball position _ "+_ballPosition);
         } else if (typeMovement < 0)
         {
             // left
             Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
             _ballPosition -= 1; 
-            ToLog("-11- user ball position: "+_ballPosition);
+            ToLog("_11_ user ball position _ "+_ballPosition);
         }
     }
 
@@ -722,9 +702,11 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         {
             // show pattern
             MatrixQuestion.SetActive(true);
-            ToLog("-20- system pattern: " + _kPattern + " : " + 
-                  String.Join(",", new List<bool>(_listQuestionPatterns[_kPattern]).ConvertAll(i => i.ToString()).ToArray())
+            ToLog("_20_ system pattern _ " + (_kPattern) + " _ " + 
+                  String.Join(",", new List<bool>(_listQuestionPatterns[(_kPattern)]).ConvertAll(i => i.ToString()).ToArray())
                   );
+            // increase counter to point to next pattern
+            _kPattern += 1;
         }
         else
         {
@@ -732,7 +714,6 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             MatrixQuestion.SetActive(false);
             // enlist next pattern
             NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
-            _kPattern += 1;
         }
     }
 
@@ -744,13 +725,13 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
             MatrixAnswer.SetActive(true);
             Btn_OK.gameObject.SetActive(true);
             Btn_OK.interactable = true;
-            ToLog("-21- answer pattern starts");
+            ToLog("_21_ answer pattern starts");
         }
         else
         {
             // _registerAnswer is used to control when the log message of the answer-matrix buttons appears. The below foreach calls the internally the function BtnOKanswer() 
             _registerAnswer = false;
-            ToLog("-24- answer pattern ends by system: " + (_kPattern-1) + " : " + 
+            ToLog("_24_ answer pattern ends by system _ " + (_kPattern - 1) + " _ " + 
                   String.Join(",", new List<bool>(_answerPattern).ConvertAll(i => i.ToString()).ToArray())
             );
             MatrixAnswer.SetActive(false);
@@ -795,14 +776,16 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        ToLog("-1- level starts: " + _level);
+        ToLog("_1_ level starts _ " + _level);
     }
 
     private void BtnOKanswer()
     {
-        ToLog("-23- answer pattern ends by user ok-button");
+        ToLog("_23_ answer pattern ends by user ok button");
         Btn_OK.interactable = false;
         MatrixAnswer.SetActive(false);
+        ScreenMsg.SetActive(true);
+        ScreenMsg.GetComponentsInChildren<Text>()[0].text = "Espera...";
     }
 
     public void BtnAnswerPattern(int id)
@@ -810,31 +793,15 @@ private static bool[] _pattern_5 = new bool[16] {false, false, false, false, fal
         _answerPattern[id] = !_answerPattern[id];
         if (_registerAnswer)
         {
-            ToLog("-22- user pressed cell: " + id + " : " + _answerPattern[id] );
+            ToLog("_22_ user pressed cell _ " + id + " _ " + _answerPattern[id] );
         }
     }
 
     private void GoToNextScene()
     {
-        ToLog("-2- level ends: " + _level);
+        ToLog("_2_ level ends _ " + _level);
         WriteLog();
         Loader.Load(Loader.Scene.QuestionnaireScene);
     }
-
     
-    // TODO: below code can be removed
-    public void CheckVibrate()
-    {
-        _toVibrate = !_toVibrate;
-    }
-
-    public void CheckPlaySound()
-    {
-        _toPlaySound = !_toPlaySound;
-    }
-    
-    private void GoToMenu()
-    {
-        Loader.Load(Loader.Scene.MenuScene);
-    }
 }

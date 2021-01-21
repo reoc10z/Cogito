@@ -15,7 +15,6 @@ public class SurveyController : MonoBehaviour
     public GameObject QuestionNasa;
     public Text WarningText;
     public Text InformationText;
-    public Button BtnMenu;
     private int _level;
     private int nStage = 0; // start in -1
     private string _pathLogFile;
@@ -62,8 +61,6 @@ public class SurveyController : MonoBehaviour
     void Start()
     {
         // general variables
-        BtnMenu.onClick.AddListener(GoToMenu);
-        
         HandleSliderImg = HandleSlider.GetComponent<Image>().gameObject;
         HandleSliderImg.SetActive(false);
         // elements for nasa
@@ -94,6 +91,8 @@ public class SurveyController : MonoBehaviour
     // append new message to the general log message 
     private void ToLog(string msg)
     {
+        if (_level < 0) 
+            return; // if TESTING level do not log
         msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
         _logs += msg;
         print(msg);
@@ -121,7 +120,7 @@ public class SurveyController : MonoBehaviour
         }
 
         sliderValue = value;
-        print(sliderValue);
+        
     }
     
     private string GetPathFile(string fileName) 
@@ -153,7 +152,7 @@ public class SurveyController : MonoBehaviour
             QuestionNasa.SetActive(true);
             // make ready the first nasa question
             //append msg to log for adding later to log file
-            ToLog("-3- survey starts at: " + System.DateTime.Now );
+            ToLog("_3_ survey starts at _ " + System.DateTime.Now );
             NextQuestion();
         } else if (nStage < 7)
         {
@@ -165,7 +164,7 @@ public class SurveyController : MonoBehaviour
             {
                 WarningText.text = "";
                 // capture results from previous question, i.e. slider
-                ToLog("-32- question: " + (nStage-1) + " : " + questions[nStage-1] + " : " + sliderValue);
+                ToLog("_32_ question: " + questions[nStage-1] + " _ " + (nStage-1) + " _ " + sliderValue);
                 if (nStage < 6)
                 {
                     // make ready next question
@@ -195,8 +194,8 @@ public class SurveyController : MonoBehaviour
             WarningText.text = "";
             // get toggle answer
             // log message
-            ToLog("-33- sound question : " + GetSelectedToggle(ToggleGroupS));
-            ToLog("-34- vibration question : " + GetSelectedToggle(ToggleGroupV));
+            ToLog("_33_ sound question _ " + GetSelectedToggle(ToggleGroupS));
+            ToLog("_34_ vibration question _ " + GetSelectedToggle(ToggleGroupV));
             NextQuestion();
             
         } else if (nStage == 8)
@@ -232,7 +231,7 @@ public class SurveyController : MonoBehaviour
             TextExplanationNasa.text = explanations[nStage];
             
             // log message
-            ToLog("-31- next question starts");
+            ToLog("_31_ next question starts");
         }
         else if (nStage == 6)
         {
@@ -245,7 +244,7 @@ public class SurveyController : MonoBehaviour
             QuestionSound.SetActive(true);
             
             // log message
-            ToLog("-31- next question starts");
+            ToLog("_31_ next question starts");
         }
         else
         {
@@ -261,31 +260,26 @@ public class SurveyController : MonoBehaviour
         }
         nStage += 1;
     }
-
     
     private void GoToNextScene()
     {
         // write next level into settings file:
         int nextLevel = _level + 1;
-        if (nextLevel < 3)
+        if (nextLevel == 1 || nextLevel == 2)
         {
             // go to next level game
             File.WriteAllText(_pathSettingsFile, "" + nextLevel );
-            ToLog("-4- survey ends");
+            ToLog("_4_ survey ends");
             WriteLog();
             Loader.Load(Loader.Scene.GameScene);
         }
         else
         {
-            ToLog("-4- survey ends");
+            ToLog("_4_ survey ends");
             WriteLog();
             // end game
             Loader.Load(Loader.Scene.MenuScene);
         }
     }
-
-    private void GoToMenu()
-    {
-        Loader.Load(Loader.Scene.MenuScene);
-    }
+    
 }

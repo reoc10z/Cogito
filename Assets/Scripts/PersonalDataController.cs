@@ -94,21 +94,21 @@ public class PersonalDataController : MonoBehaviour
             return;
         }
         // get data from input
-        string testVersion = GetSelectedToggle(TestVersion); // A-base, B-H, C-A, D-HA
+        string testVersion = GetSelectedToggle(TestVersion); // base, H, A, HA
         string age = Age.text;
         string work = Work.text;
         string sex = GetSelectedToggle(Sex);
         string hand = GetSelectedToggle(Hand);
     
         // logs
-        ToLog("-0- test version: " + testVersion);
-        ToLog("-0- age : " + age);
-        ToLog("-0- work: " + work);
-        ToLog("-0- sex: " + sex);
-        ToLog("-0- hand dominant: " + hand);
+        ToLog("_0_ test version _ " + testVersion);
+        ToLog("_0_ age _ " + age);
+        ToLog("_0_ work _ " + work);
+        ToLog("_0_ sex _ " + sex);
+        ToLog("_0_ hand dominant _ " + hand);
         WriteLog();
         
-        // set file for game type setting
+        // set file for game type setting: base, H, A, HA
         WriteFile(_pathTestVersionFile, testVersion,"r");
         
         // go to next scene

@@ -7,17 +7,17 @@ using System.IO;
 public class MenuController : MonoBehaviour
 {
     // general variables
-    public Button BtnNext;
+    public Button BtnTraining;
+    public Button BtnStartTest;
     private string _pathLogFile;
     public Text TextforPath;
     public Button BtnExit;
-    public Button BtnBorrar;
     private string _logs = "";
     void Awake()
     {
-        BtnNext.onClick.AddListener(GoToNextScene);
+        BtnTraining.onClick.AddListener(GoToTraining);
+        BtnStartTest.onClick.AddListener(GoToNextScene);
         BtnExit.onClick.AddListener(ExitGame);
-        BtnBorrar.onClick.AddListener(BorrarEsto);
     }
     // Start is called before the first frame update
     void Start()
@@ -30,17 +30,10 @@ public class MenuController : MonoBehaviour
         ToLog("");
         ToLog("");
         ToLog("");
-        ToLog("-0- app starts: " + System.DateTime.Now );
-        ToLog("-0- screen size (w,h): " + Screen.width + "," + Screen.height);
-        ToLog("-0- mobile type: " + SystemInfo.deviceModel);
-        ToLog("-0- android version: " + SystemInfo.operatingSystem);
-        
-        // setting file for level. Set level to 0
-        WriteFile( CreateFile("SettingsLevel.txt") , "0", "r");
-
-        // create setting file for game type: A-none, B-haptic, C-auditory, D-haptic-auditory
-        // this file will be modified in personalDataController
-        WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
+        ToLog("_0_ app starts _ " + System.DateTime.Now );
+        ToLog("_0_ screen size (w,h) _ " + Screen.width + " , " + Screen.height);
+        ToLog("_0_ mobile type _ " + SystemInfo.deviceModel);
+        ToLog("_0_ android version _ " + SystemInfo.operatingSystem);
     }
 
     // append new message to the general log message 
@@ -98,18 +91,31 @@ public class MenuController : MonoBehaviour
         
         return filePath;
     }
+
+    private void GoToTraining()
+    {
+        // setting file for level. Set level to -1
+        WriteFile( CreateFile("SettingsLevel.txt") , "-1", "r");
+        
+        // set file for game type setting: base, H, A, HA
+        WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
+        
+        ToLog("_0_ testing starts");
+        WriteLog();
+        Loader.Load(Loader.Scene.GameScene);
+    }
     
     private void GoToNextScene()
     {
+        // setting file for level. Set level to 0
+        WriteFile( CreateFile("SettingsLevel.txt") , "0", "r");
+
+        // create setting file for game type: base, haptic, auditory, haptic-auditory
+        // this file will be modified in personalDataController
+        WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
+        
         WriteLog();
         Loader.Load(Loader.Scene.PlayerDataScene);
-    }
-
-
-    private void BorrarEsto()
-    {
-        WriteLog();
-        Loader.Load(Loader.Scene.QuestionnaireScene);
     }
 
     private void ExitGame()
