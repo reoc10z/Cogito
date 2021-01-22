@@ -46,7 +46,8 @@ public class NativeShareScript : MonoBehaviour {
         print("sharing...");
 
         var shareSubject = "Enviar a: rafael.theoc@gmail.com: Resultados de prueba con proyecto Cogito";
-        var shareMessage = "Correo a: rafael.theoc@gmail.com"+
+        var shareMessage = "Seleccionar app correo"+
+                            "\nCorreo a: rafael.theoc@gmail.com"+
                             "\n\n!Hola!"+
                             "\n\nNo he modificado el siguiente contenido."+
                             "\n\nA continuación se incluyen los datos de mi archivo log:"+

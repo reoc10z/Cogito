@@ -15,17 +15,19 @@ public class CogitoController : MonoBehaviour
     // general settings
     public Text TxtInstructions;
     public GameObject ScreenMsg;
+    public GameObject[] HighlightsInstructions = new GameObject[2];
     private string[] _instructions = new string[]
     {
         "",
         "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
-        "1- Mueva la pelota al centro de la regla lo más rápido que puedas,\n2- y memoriza el patrón", 
+        "1- Mueva la pelota al centro de la regla lo más rápido que puedas,\n2- y memoriza el patrón",
         "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
         "1- Marca el patrón que memorizaste y pulsa OK"
     };
+
     private float _deltaMovement;
     private float _widthScreen;
-    private short _level; // 0-easy, 1-medium, 2-hard
+    private short _level; // (-1)test, 0-easy, 1-medium, 2-hard
     private bool _playing;
     private bool _toVibrate;
     private bool _toPlaySound;
@@ -56,26 +58,37 @@ public class CogitoController : MonoBehaviour
     public GameObject Ruler;
     private float _center_intialX;
     private float _center_intialY;
+
     private float _xCurrent;
+
     // ball postiion values in range [-6,6] excluding 0
     private short[] _listBallPosition_levelTraining =
         {5, -6, 6, 3, 4, 1, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
-    
+
     private short[] _listBallPosition_level0 = new short[]
-        {-6, -4, -2, -4, -2, -3,  1, -5, -1,  4,  2, -5, -4, -5,  4, -6, -4,
-            5,  4, -4,  3, -1,  6,  1, -3, -2,  1,  4, -4,  1, -2, -1,  3,  5,
-            3,  2, -3, -2,  2, -4, -5,  5, -1, -2,  2, -5,  3,  1,  2, -6, -1,
-            5, -5,  5, -5,  3, -4, -1,  3, -6};
+    {
+        -6, -4, -2, -4, -2, -3, 1, -5, -1, 4, 2, -5, -4, -5, 4, -6, -4,
+        5, 4, -4, 3, -1, 6, 1, -3, -2, 1, 4, -4, 1, -2, -1, 3, 5,
+        3, 2, -3, -2, 2, -4, -5, 5, -1, -2, 2, -5, 3, 1, 2, -6, -1,
+        5, -5, 5, -5, 3, -4, -1, 3, -6
+    };
+
     private short[] _listBallPosition_level1 = new short[]
-        {-1,  5,  1,  4, -3, -1,  2, -3,  6, -4, -6, -4, -2,  4, -3, -6, -1,
-            -3, -2,  1, -1, -2,  1,  3,  2,  6, -2,  6, -5, -4, -2, -4, -5,  3,
-            -3, -1,  6,  5, -4,  3,  1,  5,  6,  3,  1,  3, -1,  5,  6,  3, -3,
-            3, -1,  3, -3, -4, -2,  4, -5, -1};
+    {
+        -1, 5, 1, 4, -3, -1, 2, -3, 6, -4, -6, -4, -2, 4, -3, -6, -1,
+        -3, -2, 1, -1, -2, 1, 3, 2, 6, -2, 6, -5, -4, -2, -4, -5, 3,
+        -3, -1, 6, 5, -4, 3, 1, 5, 6, 3, 1, 3, -1, 5, 6, 3, -3,
+        3, -1, 3, -3, -4, -2, 4, -5, -1
+    };
+
     private short[] _listBallPosition_level2 = new short[]
-        {-2, -4, -2,  2, -6, -1, -3,  1, -1, -2,  4,  6,  5,  1, -1,  6, -5,
-            -2, -4,  4,  1,  4, -3,  1, -3,  6, -1, -2, -1,  5,  1,  2, -2,  6,
-            -2, -1,  2,  1, -4, -1,  3, -6,  2,  4, -5,  3, -4,  3, -2,  1, -6,
-            4, -5,  4,  3, -5,  4,  6,  5,  6};
+    {
+        -2, -4, -2, 2, -6, -1, -3, 1, -1, -2, 4, 6, 5, 1, -1, 6, -5,
+        -2, -4, 4, 1, 4, -3, 1, -3, 6, -1, -2, -1, 5, 1, 2, -2, 6,
+        -2, -1, 2, 1, -4, -1, 3, -6, 2, 4, -5, 3, -4, 3, -2, 1, -6,
+        4, -5, 4, 3, -5, 4, 6, 5, 6
+    };
+
     private short[] _listBallPosition;
     private short _ballPosition = 0;
     private short _nextBallPosition = 0;
@@ -92,98 +105,112 @@ public class CogitoController : MonoBehaviour
     private Image[] _listQuestionCells;
     private List<bool[]> _listQuestionPatterns = new List<bool[]>();
     private short _kPattern = 0;
+
     // patterns by level
-    private static bool[] _pattern_end = new bool[16]; // so, it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
-    private static bool[] _pattern_0 = new bool[16] { true, true, false, false, true, true, false, false, false, false, false, false, false, false, false, false };
-    private static bool[] _pattern_1 = new bool[16] { true, true, false, false, false, true, true, false, false, false, true, true, false, false, false, false };
-    // TODO: remove below code lines after level tests
-    private static bool[] _pattern_2 = new bool[16]
+    private static bool[]
+        _pattern_end =
+            new bool[16]; // so, it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
+
+    // pattern: training level
+    private readonly List<bool[]> _listQuestionPatterns_levelTraining = new List<bool[]>()
     {
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
+        new bool[16] {false,false, true, true, false, false, true, true, true, true, true, true, true, true, true, true},
+        new bool[16] {false, false, true, true, true, false, false, true, true, true, false, false, true, true, true, true },
+        _pattern_end
     };
 
-    private static bool[] _pattern_3 = new bool[16]{
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    };
-    
-    private static bool[] _pattern_4 = new bool[16]
+    // pattern: level 0 or easy: 2x 1cell, 2x 2cells, 2x 3 cells
+    private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>()
     {
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
+        new bool[16] {true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true},
+        new bool[16] {true, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
+        new bool[16] {true, true, true, true, true, true, true, true, true, true, true, false, true, true, false, true},
+        new bool[16] {true, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true},
+        new bool[16]
+            {true, true, true, true, false, true, false, false, true, true, true, true, true, true, true, true},
+        new bool[16]
+            {true, true, false, false, true, true, true, true, true, true, true, true, true, true, false, true},
+        _pattern_end
     };
 
-    private static bool[] _pattern_5 = new bool[16] {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true};
-    
-    private List<bool[]> _listQuestionPatterns_levelTraining = new List<bool[]>(){
-        _pattern_0, _pattern_1, _pattern_end
-    };
-    
-    private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>(){
-        _pattern_0, _pattern_1, _pattern_end
-    };
-
+    // pattern: level 1 or middle: 2x 3 cells, 2x 4 cells, 2x 5 cells
     private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
     {
-        _pattern_2, _pattern_3, _pattern_end
+        new bool[16]
+            {true, true, true, false, false, true, true, false, true, true, true, true, true, true, true, true},
+        new bool[16]
+            {true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false},
+        new bool[16]
+            {false, true, true, false, true, true, false, false, true, true, true, true, true, true, true, true},
+        new bool[16]
+            {false, true, true, true, true, true, true, true, false, true, false, true, true, true, true, false},
+        new bool[16]
+            {true, true, true, true, true, true, false, true, false, true, true, false, true, false, true, false},
+        new bool[16]
+            {true, false, false, true, true, false, true, true, false, true, false, true, true, true, true, true},
+        _pattern_end
     };
 
+    // pattern: level 2 or hard: 2x 6 cells, 2x 7 cells, 2x 8 cells
     private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
     {
-        _pattern_4, _pattern_5, _pattern_end
+        new bool[16]
+        {
+            false, true, false, false,
+            false, true, false, true,
+            true, true, true, true,
+            true, false, true, true
+        },
+        new bool[16]
+        {
+            true, false, true, true,
+            false, true, true, false,
+            true, true, false, true,
+            false, true, true, false
+        },
+        new bool[16]
+        {
+            true, true, false, false,
+            false, true, true, true,
+            true, true, false, false,
+            false, true, false, true
+        },
+        new bool[16]
+        {
+            false, false, true, false,
+            false, true, false, true,
+            true, true, true, false,
+            true, true, false, true
+        },
+        new bool[16]
+        {
+            false, true, false, true,
+            false, true, true, false,
+            false, true, false, true,
+            true, false, true, false
+        },
+        new bool[16]
+        {
+            true, false, false, true,
+            true, false, true, false,
+            false, true, false, false,
+            false, true, true, true
+        },
+        _pattern_end
     };
 
     // answer pattern: pattern to mark answers
     public GameObject MatrixAnswer;
     private Toggle[] _listAnswerCells;
-    private bool[] _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+
+    private bool[] _answerPattern = new bool[16]
+        {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+
     public Button Btn_OK;
     private bool _registerAnswer = false;
-    
+
     //auditory
+    public AudioSource BackgroundSound;
     public AudioSource[] AudioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
     private readonly float _intrinsic_audioDelay = 50f; // ms
     private bool _isAudio;
@@ -260,6 +287,11 @@ public class CogitoController : MonoBehaviour
         ScreenMsg.SetActive(true); // activate welcome message
         ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
         
+        // highlights for testing level 
+        HighlightsInstructions[0].SetActive(false);
+        HighlightsInstructions[1].SetActive(false);
+        HighlightsInstructions[2].SetActive(false);
+
         // question pattern
         _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
         _kPattern = 0;
@@ -426,6 +458,13 @@ public class CogitoController : MonoBehaviour
                 // deactivate welcome message
                 ScreenMsg.SetActive(false);
                 // go to next stage: 1
+                if (_level == -1)
+                {
+                    //highlight some elements if level is testing
+                    HighlightsInstructions[0].SetActive(true);
+                    HighlightsInstructions[1].SetActive(false);
+                    HighlightsInstructions[2].SetActive(true);
+                }
                 _nStage = 1;
                 _timerFrame = _timesFrame[_nStage];
                 _timerBall = BallTimeCycle; // 3 seconds
@@ -456,6 +495,13 @@ public class CogitoController : MonoBehaviour
             else
             {
                 // go to next stage
+                if (_level == -1)
+                {
+                    //highlight some elements if level is testing
+                    HighlightsInstructions[0].SetActive(true);
+                    HighlightsInstructions[1].SetActive(true);
+                    HighlightsInstructions[2].SetActive(true);
+                }
                 _nStage = 2;
                 _timerFrame = _timesFrame[_nStage];
                 TxtInstructions.text = _instructions[_nStage];
@@ -486,6 +532,13 @@ public class CogitoController : MonoBehaviour
             else
             {
                 // go to next stage: 3
+                if (_level == -1)
+                {
+                    //highlight some elements if level is testing
+                    HighlightsInstructions[0].SetActive(true);
+                    HighlightsInstructions[1].SetActive(false);
+                    HighlightsInstructions[2].SetActive(true);
+                }
                 _nStage = 3;
                 _timerFrame = _timesFrame[_nStage];
                 TxtInstructions.text = _instructions[_nStage];
@@ -516,6 +569,13 @@ public class CogitoController : MonoBehaviour
             else
             {
                 // go to next stage: 4
+                if (_level == -1)
+                {
+                    //highlight some elements if level is testing
+                    HighlightsInstructions[0].SetActive(false);
+                    HighlightsInstructions[1].SetActive(true);
+                    HighlightsInstructions[2].SetActive(true);
+                }
                 _nStage = 4;
                 _timerFrame = _timesFrame[_nStage];
                 TxtInstructions.text = _instructions[_nStage];
@@ -533,6 +593,13 @@ public class CogitoController : MonoBehaviour
             else 
             {
                 // go to next stage: 0
+                if (_level == -1)
+                {
+                    //highlight some elements if level is testing
+                    HighlightsInstructions[0].SetActive(false);
+                    HighlightsInstructions[1].SetActive(false);
+                    HighlightsInstructions[2].SetActive(false);
+                }
                 MatrixAnswerController(false);
                 ScreenMsg.SetActive(true); // activate welcome message
                 ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
@@ -774,6 +841,7 @@ public class CogitoController : MonoBehaviour
 
     private void StartGame()
     {
+        BackgroundSound.Play();
         _nStage = 0;
         _timerFrame = _timesFrame[_nStage];
         _playing = !_playing;
@@ -804,6 +872,7 @@ public class CogitoController : MonoBehaviour
 
     private void GoToNextScene()
     {
+        BackgroundSound.Stop();
         ToLog("_2_ level ends _ " + _level);
         WriteLog();
         Loader.Load(Loader.Scene.QuestionnaireScene);
