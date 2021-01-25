@@ -16,7 +16,7 @@ public class SurveyController : MonoBehaviour
     public Text WarningText;
     public Text InformationText;
     private int _level;
-    private int nStage = 0; // start in -1
+    private int nStage; 
     private string _pathLogFile;
     private string _logs = "";
     private string _pathSettingsFile;
@@ -61,6 +61,7 @@ public class SurveyController : MonoBehaviour
     void Start()
     {
         // general variables
+        nStage = 0;
         HandleSliderImg = HandleSlider.GetComponent<Image>().gameObject;
         HandleSliderImg.SetActive(false);
         // elements for nasa
@@ -86,6 +87,16 @@ public class SurveyController : MonoBehaviour
     {
         // write log messages to log file
         WriteLog();
+    }
+
+    void Update()
+    {
+        // log any screen touch
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y );
+        }
     }
     
     // append new message to the general log message 
@@ -153,7 +164,8 @@ public class SurveyController : MonoBehaviour
             // make ready the first nasa question
             //append msg to log for adding later to log file
             ToLog("_3_ survey starts at _ " + System.DateTime.Now );
-            NextQuestion();
+            NextQuestion(nStage);
+            nStage += 1;
         } else if (nStage < 7)
         {
             if (waitingFirstClick)
@@ -168,20 +180,30 @@ public class SurveyController : MonoBehaviour
                 if (nStage < 6)
                 {
                     // make ready next question
-                    NextQuestion();
+                    NextQuestion(nStage);
+                    nStage += 1;
                 }
                 else
                 {
-                    // if it is last question, test if go to next question or next level
-                    if (_level == 2)
-                        NextQuestion();
-                    else
+                    if (_level == -1)
                     {
-                        GoToNextScene();
-                    } 
+                        // if level for practice
+                        NextQuestion(9);
+                        nStage = 9;
+                    }
+                    else if (_level == 0 || _level == 1)
+                    {
+                        // easy and medium level
+                        NextQuestion(8);
+                        nStage = 8;
+                    }
+                    else if (_level == 2)
+                    {
+                        // if it is last question, test if to go to next question or to next level
+                        NextQuestion(nStage);
+                        nStage += 1;
+                    }
                 }
-                    
-                
             }
         }
         else if (nStage == 7)
@@ -196,9 +218,10 @@ public class SurveyController : MonoBehaviour
             // log message
             ToLog("_33_ sound question _ " + GetSelectedToggle(ToggleGroupS));
             ToLog("_34_ vibration question _ " + GetSelectedToggle(ToggleGroupV));
-            NextQuestion();
+            NextQuestion(nStage);
+            nStage += 1;
             
-        } else if (nStage == 8)
+        } else if (nStage == 8 || nStage == 9)
         {
             WarningText.text = "";
             // go to main for sending data
@@ -218,22 +241,22 @@ public class SurveyController : MonoBehaviour
     }
 
     //reset slider and make ready text for next question
-    private void NextQuestion()
+    private void NextQuestion(int nextQuestion)
     {
-        if (nStage < 6)
+        if (nextQuestion < 6)
         {
             // NASA questions
             // set values for components
             HandleSliderImg.SetActive(false);
             waitingFirstClick = true;
-            TextQuestionNasa.text = questions[nStage];
-            TextQuestionN.text = (nStage + 1) + " de 6";
-            TextExplanationNasa.text = explanations[nStage];
+            TextQuestionNasa.text = questions[nextQuestion];
+            TextQuestionN.text = (nextQuestion + 1) + " de 6";
+            TextExplanationNasa.text = explanations[nextQuestion];
             
             // log message
             ToLog("_31_ next question starts");
         }
-        else if (nStage == 6)
+        else if (nextQuestion == 6)
         {
             // SOUND and VIBRATION questions
             // deactivate elements for nasa
@@ -246,9 +269,9 @@ public class SurveyController : MonoBehaviour
             // log message
             ToLog("_31_ next question starts");
         }
-        else
+        else if (nextQuestion == 7)
         {
-            // screen to say thank you
+            // last screen for hard level: screen to say thank you
             // deactivate elements for other questions
             QuestionVibration.SetActive(false);
             QuestionSound.SetActive(false);
@@ -258,16 +281,39 @@ public class SurveyController : MonoBehaviour
                                    "Ahora envia un correo con tus resultados usando el botón Enviar Resultados \n" +
                                    "en la siguiente pantalla";
         }
-        nStage += 1;
+        else if (nextQuestion == 8)
+        {
+            // last screen for easy and medium level
+            // deactivate elements for nasa
+            PanelNasaInformation.SetActive(false);
+            QuestionNasa.SetActive(false);
+            
+            // screen for ending the game for practice
+            InformationText.gameObject.SetActive(true);
+            InformationText.text = "¡Eso es!.\nAhora, el siguiente nivel.";
+            
+        }
+        else if (nextQuestion == 9)
+        {
+            // last screen for practice level
+            // deactivate elements for nasa
+            PanelNasaInformation.SetActive(false);
+            QuestionNasa.SetActive(false);
+            
+            // screen for ending the game for practice
+            InformationText.gameObject.SetActive(true);
+            InformationText.text = "¡Genial!\nTerminaste la práctica. Ahora ve a la opción: \"Iniciar el Test\".\n"+
+                                   "O puedes volver a practicar.";
+        }
     }
     
     private void GoToNextScene()
     {
-        // write next level into settings file:
-        int nextLevel = _level + 1;
-        if (nextLevel == 1 || nextLevel == 2)
+        if (_level == 0 || _level == 1)
         {
-            // go to next level game
+            // for basic and medium level, go to next level game
+            // write next level into settings file:
+            int nextLevel = _level + 1;
             File.WriteAllText(_pathSettingsFile, "" + nextLevel );
             ToLog("_4_ survey ends");
             WriteLog();
@@ -275,6 +321,7 @@ public class SurveyController : MonoBehaviour
         }
         else
         {
+            // for last level, i.e. hard level; and for level for practice
             ToLog("_4_ survey ends");
             WriteLog();
             // end game

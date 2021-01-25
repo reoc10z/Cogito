@@ -76,7 +76,7 @@ public class NativeShareScript : MonoBehaviour {
             //call createChooser method of activity class
             AndroidJavaClass unity = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");
             AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject> ("currentActivity");
-            AndroidJavaObject chooser = intentClass.CallStatic<AndroidJavaObject> ("createChooser", intentObject, "Share your high score");
+            AndroidJavaObject chooser = intentClass.CallStatic<AndroidJavaObject> ("createChooser", intentObject, "Selecciona app de correo");
             currentActivity.Call ("startActivity", chooser);
         }
 

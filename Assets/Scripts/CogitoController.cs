@@ -63,7 +63,7 @@ public class CogitoController : MonoBehaviour
 
     // ball postiion values in range [-6,6] excluding 0
     private short[] _listBallPosition_levelTraining =
-        {5, -6, 6, 3, 4, 1, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3}; //from -6 to 6
+        {3, -3, 2, 3, -4, 1, -1, 2, -3, 4, 5, -6, 2, 3, -4, 1, -1, 2, -3, 4}; 
 
     private short[] _listBallPosition_level0 = new short[]
     {
@@ -386,6 +386,13 @@ public class CogitoController : MonoBehaviour
             }
 
             _ballDirection = 0;
+            
+        }
+        // log any screen touch
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y );
         }
     }
     
