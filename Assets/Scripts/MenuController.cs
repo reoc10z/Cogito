@@ -14,6 +14,9 @@ public class MenuController : MonoBehaviour
     public Button BtnExit;
     public Dropdown DropBorrar; // TODO : remove this and related code
     private string _logs = "";
+#if UNITY_ANDROID
+    private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
+#endif
     void Awake()
     {
         BtnTraining.onClick.AddListener(GoToTraining);
@@ -103,7 +106,9 @@ public class MenuController : MonoBehaviour
         
         ToLog("_0_ testing starts");
         WriteLog();
-        Loader.Load(Loader.Scene.GameScene);
+        Loader.Load(Loader.Scene.CalibrationScene);
+        // after calibration scene, it starts the game scene
+        // Loader.Load(Loader.Scene.GameScene);
     }
     
     private void GoToNextScene()
@@ -125,7 +130,11 @@ public class MenuController : MonoBehaviour
         }
         // --------    up to here    --------- 
         
-        
+        // get volume intensity
+        sound.GetSystemVolume();
+        float vol = 100.0f * sound.GetSystemVolume();
+        ToLog("_0_ volume (%) _ " + vol.ToString("0.00") );
+
         // setting file for level. Set level to 0
         WriteFile( CreateFile("SettingsLevel.txt") , "0", "r");
 
