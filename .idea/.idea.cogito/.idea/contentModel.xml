@@ -10,6 +10,32 @@
         <e p="Editor" t="Include">
           <e p="SceneAutoLoader.cs" t="Include" />
         </e>
+        <e p="Libraries" t="Include">
+          <e p="UnityNativeShare-master" t="Include">
+            <e p="LICENSE.txt" t="Include" />
+            <e p="Plugins" t="Include">
+              <e p="NativeShare" t="Include">
+                <e p="Android" t="Include">
+                  <e p="NSCallbackHelper.cs" t="Include" />
+                  <e p="NSShareResultCallbackAndroid.cs" t="Include" />
+                </e>
+                <e p="Editor" t="Include">
+                  <e p="NSPostProcessBuild.cs" t="Include" />
+                  <e p="NativeShare.Editor.asmdef" t="Include" />
+                </e>
+                <e p="NativeShare.Runtime.asmdef" t="Include" />
+                <e p="NativeShare.cs" t="Include" />
+                <e p="README.txt" t="Include" />
+                <e p="iOS" t="Include">
+                  <e p="NSShareResultCallbackiOS.cs" t="Include" />
+                </e>
+              </e>
+            </e>
+          </e>
+          <e p="Vibration" t="Include">
+            <e p="Vibration.cs" t="Include" />
+          </e>
+        </e>
         <e p="Log.txt" t="Include" />
         <e p="Scripts" t="Include">
           <e p="AndroidNativeVolumeService.cs" t="Include" />
@@ -23,10 +49,9 @@
         </e>
         <e p="SettingsLevel.txt" t="Include" />
         <e p="SettingsTestVersion.txt" t="Include" />
-        <e p="Vibration" t="Include">
-          <e p="Vibration.cs" t="Include" />
-        </e>
       </e>
+      <e p="NativeShare.Editor.csproj" t="IncludeRecursive" />
+      <e p="NativeShare.Runtime.csproj" t="IncludeRecursive" />
       <e p="Temp/bin" t="ExcludeRecursive" />
       <e p="cogito.sln" t="IncludeFlat" />
       <e p="obj" t="ExcludeRecursive" />

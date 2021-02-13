@@ -101,11 +101,11 @@ public class PersonalDataController : MonoBehaviour
         string hand = GetSelectedToggle(Hand);
     
         // logs
-        ToLog("_0_ test version _ " + testVersion);
-        ToLog("_0_ age _ " + age);
-        ToLog("_0_ work _ " + work);
-        ToLog("_0_ sex _ " + sex);
-        ToLog("_0_ hand dominant _ " + hand);
+        ToLog("_0_ test version _ " + testVersion +"_NA");
+        ToLog("_0_ age _ " + age +"_NA");
+        ToLog("_0_ work _ " + work +"_NA");
+        ToLog("_0_ sex _ " + sex +"_NA");
+        ToLog("_0_ hand dominant _ " + hand +"_NA");
         WriteLog();
         
         // set file for game type setting: base, H, A, HA

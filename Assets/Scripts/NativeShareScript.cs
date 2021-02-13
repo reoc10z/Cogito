@@ -1,16 +1,27 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class NativeShareScript : MonoBehaviour {
+public class NativeShareScript : MonoBehaviour
+{
     private bool isProcessing = false;
     private bool isFocus = false;
     private string _pathLogFile;
+    public Text TxtPath;
+    public Button BtnMenu;
 
     public void Awake()
     {
         _pathLogFile = GetPathFile("Log.txt");
+        BtnMenu.onClick.AddListener(GoToMenu);
+    }
+
+    void Start()
+    {
+        TxtPath.text = _pathLogFile;
+        ShareBtnPress();
     }
     
     private string GetPathFile(string fileName) 
@@ -25,69 +36,39 @@ public class NativeShareScript : MonoBehaviour {
         }
     }
     
-    public void ShareBtnPress()
+    private void ShareBtnPress()
     {
-        if (!isProcessing)
-        {
-            StartCoroutine(ShareTextInAndroid());
-        }
+        StartCoroutine(LoadFileAndShare());
     }
-
-    private string ReadFile(string filePath)
+    
+    private IEnumerator LoadFileAndShare()
     {
-        // read filepath and return all text as one string
-        return System.IO.File.ReadAllText(filePath);
-    }
-
-#if UNITY_ANDROID
-    private IEnumerator ShareTextInAndroid () {
-        
-        //string logPathFile = Cogito.GetLogPathFile();
+        yield return new WaitForEndOfFrame();
         print("sharing...");
-
+        
         var shareSubject = "Enviar a: rafael.theoc@gmail.com: Resultados de prueba con proyecto Cogito";
         var shareMessage = "Seleccionar app correo"+
-                            "\nCorreo a: rafael.theoc@gmail.com"+
-                            "\n\n!Hola!"+
-                            "\n\nNo he modificado el siguiente contenido."+
-                            "\n\nA continuación se incluyen los datos de mi archivo log:"+
-                            "\n\n"+
-                            "\n\n"+
-                            "\n\n-------------------------------------------------------"+
-                            "\n\n"+
-                            "\n\n"+
-                            "\n\n";
-        shareMessage += ReadFile(_pathLogFile);
-
-        isProcessing = true;
-        yield return new WaitForEndOfFrame();
+                           "\nCorreo a: rafael.theoc@gmail.com"+
+                           "\n\n!Hola!"+
+                           "\n\nNo he modificado el archivo log y lo anexo al correo."+
+                           "\n\nA continuación escribo algún comentario extra que tengo sobre el experimento:"+
+                           "\n\n"+
+                           "\n\n"+
+                           "\n\n-------------------------------------------------------"
+                           ;
         
-        if (!Application.isEditor) {
-            //Create intent for action send
-            AndroidJavaClass   intentClass = new AndroidJavaClass ("android.content.Intent");
-            AndroidJavaObject intentObject = new AndroidJavaObject ("android.content.Intent");
-            intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string> ("ACTION_SEND"));
-
-            //put text and subject extra
-            intentObject.Call<AndroidJavaObject> ("setType", "text/plain");
-            intentObject.Call<AndroidJavaObject> ("putExtra", intentClass.GetStatic<string> ("EXTRA_SUBJECT"), shareSubject);
-            intentObject.Call<AndroidJavaObject> ("putExtra", intentClass.GetStatic<string> ("EXTRA_TEXT"), shareMessage);
-
-            //call createChooser method of activity class
-            AndroidJavaClass unity = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject> ("currentActivity");
-            AndroidJavaObject chooser = intentClass.CallStatic<AndroidJavaObject> ("createChooser", intentObject, "Selecciona app de correo");
-            currentActivity.Call ("startActivity", chooser);
-        }
-
-        yield return new WaitUntil (() => isFocus);
-        isProcessing = false;
+        new NativeShare().AddFile( _pathLogFile )
+            .SetTitle("Select email app")
+            .SetSubject( shareSubject )
+            .SetText( shareMessage )
+            .SetCallback( ( result, shareTarget ) => Debug.Log( "Share result: " + result + ", selected app: " + shareTarget ) )
+            //.SetCallback( ( result, shareTarget ) => TxtPath.text = ""+result ) // set result from sharing in txt box. Note: this result is not reliable!!!
+            .Share();
     }
- 
-    private void OnApplicationFocus(bool focus)
+    
+    private void GoToMenu()
     {
-        isFocus = focus;
+        Loader.Load(Loader.Scene.MenuScene);
     }
-#endif
     
 }

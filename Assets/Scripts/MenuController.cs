@@ -9,8 +9,8 @@ public class MenuController : MonoBehaviour
     // general variables
     public Button BtnTraining;
     public Button BtnStartTest;
+    public Button BtnShareLog;
     private string _pathLogFile;
-    public Text TextforPath;
     public Button BtnExit;
     public Dropdown DropBorrar; // TODO : remove this and related code
     private string _logs = "";
@@ -20,7 +20,8 @@ public class MenuController : MonoBehaviour
     void Awake()
     {
         BtnTraining.onClick.AddListener(GoToTraining);
-        BtnStartTest.onClick.AddListener(GoToNextScene);
+        BtnStartTest.onClick.AddListener(GoToGame);
+        BtnShareLog.onClick.AddListener(GoToShare);
         BtnExit.onClick.AddListener(ExitGame);
     }
     // Start is called before the first frame update
@@ -28,16 +29,12 @@ public class MenuController : MonoBehaviour
     {
         //log file
         _pathLogFile  = CreateFile("Log.txt");
-        TextforPath.text = _pathLogFile;
-        
+
         // initial logs
-        ToLog("");
-        ToLog("");
-        ToLog("");
-        ToLog("_0_ app starts _ " + System.DateTime.Now );
-        ToLog("_0_ screen size (w,h) _ " + Screen.width + " , " + Screen.height);
-        ToLog("_0_ mobile type _ " + SystemInfo.deviceModel);
-        ToLog("_0_ android version _ " + SystemInfo.operatingSystem);
+        ToLog("_0_ app starts _ " + System.DateTime.Now + "_NA" );
+        ToLog("_0_ screen size (w,h) _ " + Screen.width + " , " + Screen.height + "_NA");
+        ToLog("_0_ mobile type _ " + SystemInfo.deviceModel + "_NA");
+        ToLog("_0_ android version _ " + SystemInfo.operatingSystem + "_NA");
     }
 
     // append new message to the general log message 
@@ -104,14 +101,15 @@ public class MenuController : MonoBehaviour
         // set file for game type setting: base, H, A, HA
         WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
         
-        ToLog("_0_ testing starts");
+        ToLog("_0_ testing starts_NA_NA");
         WriteLog();
         Loader.Load(Loader.Scene.CalibrationScene);
         // after calibration scene, it starts the game scene
+        //// TODO: remove next code line
         // Loader.Load(Loader.Scene.GameScene);
     }
     
-    private void GoToNextScene()
+    private void GoToGame()
     {
         // ------- remove code from here --------
         int selectedLevel = DropBorrar.value;
@@ -129,12 +127,12 @@ public class MenuController : MonoBehaviour
             return;
         }
         // --------    up to here    --------- 
-        
+#if UNITY_ANDROID
         // get volume intensity
         sound.GetSystemVolume();
         float vol = 100.0f * sound.GetSystemVolume();
-        ToLog("_0_ volume (%) _ " + vol.ToString("0.00") );
-
+        ToLog("_0_ volume (%) _ " + vol.ToString("0.00")+"_NA" );
+#endif
         // setting file for level. Set level to 0
         WriteFile( CreateFile("SettingsLevel.txt") , "0", "r");
 
@@ -146,6 +144,14 @@ public class MenuController : MonoBehaviour
         Loader.Load(Loader.Scene.PlayerDataScene);
     }
 
+    private void GoToShare()
+    {
+        //ToLog("_0_ testing starts");
+        //WriteLog();
+        
+        Loader.Load(Loader.Scene.SharingScene);
+    }
+    
     private void ExitGame()
     {
         WriteLog();

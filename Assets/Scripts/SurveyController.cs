@@ -95,7 +95,7 @@ public class SurveyController : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y );
+            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y +"_NA" );
         }
     }
     
@@ -163,7 +163,7 @@ public class SurveyController : MonoBehaviour
             QuestionNasa.SetActive(true);
             // make ready the first nasa question
             //append msg to log for adding later to log file
-            ToLog("_3_ survey starts at _ " + System.DateTime.Now );
+            ToLog("_3_ survey starts at _ " + System.DateTime.Now +"_NA" );
             NextQuestion(nStage);
             nStage += 1;
         } else if (nStage < 7)
@@ -216,8 +216,8 @@ public class SurveyController : MonoBehaviour
             WarningText.text = "";
             // get toggle answer
             // log message
-            ToLog("_33_ sound question _ " + GetSelectedToggle(ToggleGroupS));
-            ToLog("_34_ vibration question _ " + GetSelectedToggle(ToggleGroupV));
+            ToLog("_33_ sound question _ " + GetSelectedToggle(ToggleGroupS) +"_NA");
+            ToLog("_34_ vibration question _ " + GetSelectedToggle(ToggleGroupV) +"_NA");
             NextQuestion(nStage);
             nStage += 1;
             
@@ -254,7 +254,7 @@ public class SurveyController : MonoBehaviour
             TextExplanationNasa.text = explanations[nextQuestion];
             
             // log message
-            ToLog("_31_ next question starts");
+            ToLog("_31_ next question starts_NA_NA");
         }
         else if (nextQuestion == 6)
         {
@@ -267,7 +267,7 @@ public class SurveyController : MonoBehaviour
             QuestionSound.SetActive(true);
             
             // log message
-            ToLog("_31_ next question starts");
+            ToLog("_31_ next question starts_NA_NA");
         }
         else if (nextQuestion == 7)
         {
@@ -315,14 +315,14 @@ public class SurveyController : MonoBehaviour
             // write next level into settings file:
             int nextLevel = _level + 1;
             File.WriteAllText(_pathSettingsFile, "" + nextLevel );
-            ToLog("_4_ survey ends");
+            ToLog("_4_ survey ends_NA_NA");
             WriteLog();
             Loader.Load(Loader.Scene.GameScene);
         }
         else
         {
             // for last level, i.e. hard level; and for level for practice
-            ToLog("_4_ survey ends");
+            ToLog("_4_ survey ends_NA_NA");
             WriteLog();
             // end game
             Loader.Load(Loader.Scene.MenuScene);

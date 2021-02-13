@@ -12,6 +12,7 @@ public static class Loader
         PlayerDataScene,
         GameScene,
         QuestionnaireScene,
+        SharingScene,
     }
 
     public static void Load(Scene scene)

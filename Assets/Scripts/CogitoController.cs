@@ -13,17 +13,10 @@ public class CogitoController : MonoBehaviour
 {
 
     // general settings
-    public Text TxtInstructions;
+    public Text TxtInstructions_Ball;
+    public Text TxtInstructions_Pattern;
     public GameObject ScreenMsg;
     public GameObject[] HighlightsInstructions = new GameObject[2];
-    private string[] _instructions = new string[]
-    {
-        "",
-        "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
-        "1- Mueva la pelota al centro de la regla lo más rápido que puedas,\n2- y memoriza el patrón",
-        "1- Mueva la pelota al centro de la regla lo más rápido que puedas",
-        "1- Marca el patrón que memorizaste y pulsa OK"
-    };
 
     private float _deltaMovement;
     private float _widthScreen;
@@ -290,7 +283,6 @@ public class CogitoController : MonoBehaviour
         // highlights for testing level 
         HighlightsInstructions[0].SetActive(false);
         HighlightsInstructions[1].SetActive(false);
-        HighlightsInstructions[2].SetActive(false);
 
         // question pattern
         _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
@@ -365,7 +357,7 @@ public class CogitoController : MonoBehaviour
                         // Move ball to next predefined position by the game
                         Ball.transform.position = _nextPosition;
                         _ballPosition = _nextBallPosition;
-                        ToLog("_10_ system ball position _ " + _ballPosition);
+                        ToLog("_10_ system ball position _ " + _ballPosition +"_NA");
                         _newPosition = false;
                     }
                 }
@@ -392,7 +384,7 @@ public class CogitoController : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y );
+            ToLog("_5_ touch screen (x,y) _ " + (int)touch.position.x + " , " + (int)touch.position.y +"_NA" );
         }
     }
     
@@ -470,12 +462,11 @@ public class CogitoController : MonoBehaviour
                     //highlight some elements if level is testing
                     HighlightsInstructions[0].SetActive(true);
                     HighlightsInstructions[1].SetActive(false);
-                    HighlightsInstructions[2].SetActive(true);
                 }
                 _nStage = 1;
                 _timerFrame = _timesFrame[_nStage];
                 _timerBall = BallTimeCycle; // 3 seconds
-                TxtInstructions.text = _instructions[_nStage];
+                UpdateInstructions();
                 BallController(true);
             }
         } else if (_nStage == 1) 
@@ -507,11 +498,10 @@ public class CogitoController : MonoBehaviour
                     //highlight some elements if level is testing
                     HighlightsInstructions[0].SetActive(true);
                     HighlightsInstructions[1].SetActive(true);
-                    HighlightsInstructions[2].SetActive(true);
                 }
                 _nStage = 2;
                 _timerFrame = _timesFrame[_nStage];
-                TxtInstructions.text = _instructions[_nStage];
+                UpdateInstructions();
                 MatrixQuestionController(true);
             }
                 
@@ -544,11 +534,10 @@ public class CogitoController : MonoBehaviour
                     //highlight some elements if level is testing
                     HighlightsInstructions[0].SetActive(true);
                     HighlightsInstructions[1].SetActive(false);
-                    HighlightsInstructions[2].SetActive(true);
                 }
                 _nStage = 3;
                 _timerFrame = _timesFrame[_nStage];
-                TxtInstructions.text = _instructions[_nStage];
+                UpdateInstructions();
                 MatrixQuestionController(false);
             }
                 
@@ -581,11 +570,10 @@ public class CogitoController : MonoBehaviour
                     //highlight some elements if level is testing
                     HighlightsInstructions[0].SetActive(false);
                     HighlightsInstructions[1].SetActive(true);
-                    HighlightsInstructions[2].SetActive(true);
                 }
                 _nStage = 4;
                 _timerFrame = _timesFrame[_nStage];
-                TxtInstructions.text = _instructions[_nStage];
+                UpdateInstructions();
                 BallController(false);
                 MatrixAnswerController(true);
             } 
@@ -605,7 +593,6 @@ public class CogitoController : MonoBehaviour
                     //highlight some elements if level is testing
                     HighlightsInstructions[0].SetActive(false);
                     HighlightsInstructions[1].SetActive(false);
-                    HighlightsInstructions[2].SetActive(false);
                 }
                 MatrixAnswerController(false);
                 ScreenMsg.SetActive(true); // activate welcome message
@@ -615,7 +602,7 @@ public class CogitoController : MonoBehaviour
                 ArrowsPanel.SetActive(true);
                 _nStage = 0;
                 _timerFrame = _timesFrame[_nStage];
-                TxtInstructions.text = _instructions[_nStage];
+                UpdateInstructions();
                 _cyclesByLevel -= 1;
                 if (_cyclesByLevel == 0)
                 {
@@ -636,7 +623,7 @@ public class CogitoController : MonoBehaviour
                 {
                     // when audio-play ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("_13_ sound ends _ " + (_idxStimuli + 1) );
+                    ToLog("_13_ sound ends _ " + (_idxStimuli + 1) +"_NA" );
                     _isAudio = false;
                     // vibration is false, just in case audio and vibrations are executed in parallel
                     _isVibration = false; // after testing, vibration always ends before the auditory stimulus
@@ -651,7 +638,7 @@ public class CogitoController : MonoBehaviour
                 {
                     // when vibration ends
                     _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("_15_ vibration ends _ " + (_idxStimuli + 1) );
+                    ToLog("_15_ vibration ends _ " + (_idxStimuli + 1) +"_NA" );
                     _isVibration = false;
                     _isAudio = false; // because if.
                 }
@@ -668,6 +655,35 @@ public class CogitoController : MonoBehaviour
         msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
         _logs += msg;
         print(msg);
+    }
+
+    private void UpdateInstructions()
+    {
+        if (_nStage == 0)
+        {
+            TxtInstructions_Ball.text = "";
+            TxtInstructions_Pattern.text = "";
+        } 
+        else if (_nStage == 1)
+        {
+            TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
+            //TxtInstructions_Pattern.text = "";
+        } 
+        else if (_nStage == 2)
+        {
+            //TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
+            TxtInstructions_Pattern.text = "Memoriza el patrón";
+        } 
+        else if (_nStage == 3)
+        {
+            //TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
+            TxtInstructions_Pattern.text = "";
+        } 
+        else if (_nStage == 4)
+        {
+            TxtInstructions_Ball.text = "";
+            TxtInstructions_Pattern.text = "Marca el patrón que memorizaste y pulsa OK";
+        }
     }
     
     private string ReadFile(string filePath)
@@ -702,7 +718,7 @@ public class CogitoController : MonoBehaviour
             _allowBallMovement = false;
             Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
             _ballPosition = 0;
-            ToLog("_10_ system ball position _ " + _ballPosition);
+            ToLog("_10_ system ball position _ " + _ballPosition +"_NA");
             Ball.SetActive(false);
             Ruler.SetActive(false);
             ArrowsPanel.SetActive(false);
@@ -712,7 +728,7 @@ public class CogitoController : MonoBehaviour
     private void Vibrate(long[] vibrationPattern)
     {
         _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
-        ToLog("_14_ vibration starts _ " + (_idxStimuli + 1));
+        ToLog("_14_ vibration starts _ " + (_idxStimuli + 1) +"_NA");
         Vibration.Vibrate(vibrationPattern, -1);
         _isVibration = true;
     }
@@ -720,7 +736,7 @@ public class CogitoController : MonoBehaviour
     private void PlaySound(AudioSource _audio)
     {
         _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-        ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) );
+        ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) +"_NA" );
         _audio.Play(0);
         _isAudio = true;
     }
@@ -765,13 +781,13 @@ public class CogitoController : MonoBehaviour
             // right
             Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
             _ballPosition += 1;
-            ToLog("_11_ user ball position _ "+_ballPosition);
+            ToLog("_11_ user ball position _ "+_ballPosition +"_NA");
         } else if (typeMovement < 0)
         {
             // left
             Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
             _ballPosition -= 1; 
-            ToLog("_11_ user ball position _ "+_ballPosition);
+            ToLog("_11_ user ball position _ "+_ballPosition +"_NA");
         }
     }
 
@@ -804,7 +820,7 @@ public class CogitoController : MonoBehaviour
             MatrixAnswer.SetActive(true);
             Btn_OK.gameObject.SetActive(true);
             Btn_OK.interactable = true;
-            ToLog("_21_ answer pattern starts");
+            ToLog("_21_ answer pattern starts" +"_NA" +"_NA");
         }
         else
         {
@@ -856,16 +872,17 @@ public class CogitoController : MonoBehaviour
         Ball.SetActive(true);
         ArrowsPanel.SetActive(true);
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        ToLog("_1_ level starts _ " + _level);
+        ToLog("_1_ level starts _ " + _level +"_NA");
     }
 
     private void BtnOKanswer()
     {
-        ToLog("_23_ answer pattern ends by user ok button");
+        ToLog("_23_ answer pattern ends by user ok button" +"_NA" +"_NA");
         Btn_OK.interactable = false;
         MatrixAnswer.SetActive(false);
         ScreenMsg.SetActive(true);
         ScreenMsg.GetComponentsInChildren<Text>()[0].text = "Espera...";
+        _timerFrame = 500.0f; // reduce time to go to next scene to 500ms
     }
 
     public void BtnAnswerPattern(int id)
@@ -880,7 +897,7 @@ public class CogitoController : MonoBehaviour
     private void GoToNextScene()
     {
         BackgroundSound.Stop();
-        ToLog("_2_ level ends _ " + _level);
+        ToLog("_2_ level ends _ " + _level +"_NA");
         WriteLog();
         Loader.Load(Loader.Scene.QuestionnaireScene);
     }

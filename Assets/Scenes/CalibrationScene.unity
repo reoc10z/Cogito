@@ -696,11 +696,10 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "1- Debes usar audifonos durante todo el experimento.\n\n2- \xBFEstasn
-    escuchando el sonido en este momento?\nSube o baja el volumen de tu celular hasta
-    que sientas que el sonido de fondo (cafeter\xEDa) sea como en una situaci\xF3n
-    real.\n\n3- Durante todo el experimento, mant\xE9n el mismo volumen que est\xE1s
-    colocando."
+  m_Text: "1- Debes usar aud\xEDfonos durante todo el experimento.\n\n2- \xBFEst\xE1s
+    escuchando el sonido en este momento?\nSube el volumen de tu celular al valor
+    m\xE1s fuerte posible que sea c\xF3modo para t\xED.\n\n3- Durante todo el experimento,
+    mant\xE9n el mismo volumen que est\xE1s colocando."
 --- !u!222 &1834155651
 CanvasRenderer:
   m_ObjectHideFlags: 0

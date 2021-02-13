@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/QuestionnaireScene.unity
     guid: cec03e38022d995f1b85e100d6b21a37
+  - enabled: 1
+    path: Assets/Scenes/SharingScene.unity
+    guid: e22b5ed6909af337784bc36d31f88dc9
   m_configObjects: {}
