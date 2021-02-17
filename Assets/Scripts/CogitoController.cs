@@ -60,10 +60,10 @@ public class CogitoController : MonoBehaviour
 
     private short[] _listBallPosition_level0 = new short[]
     {
-        -6, -4, -2, -4, -2, -3, 1, -5, -1, 4, 2, -5, -4, -5, 4, -6, -4,
-        5, 4, -4, 3, -1, 6, 1, -3, -2, 1, 4, -4, 1, -2, -1, 3, 5,
-        3, 2, -3, -2, 2, -4, -5, 5, -1, -2, 2, -5, 3, 1, 2, -6, -1,
-        5, -5, 5, -5, 3, -4, -1, 3, -6
+        -6, -4, -2, -4, -2, -3,  1, -5, -1,  4, 2, -5, -4, -5,  4, -6, -4,
+         5,  4, -4,  3, -1,  6,  1, -3, -2,  1, 4, -4,  1, -2, -1,  3,  5,
+         3,  2, -3, -2,  2, -4, -5,  5, -1, -2, 2, -5,  3,  1,  2, -6, -1,
+         5, -5,  5, -5,  3, -4, -1,  3, -6
     };
 
     private short[] _listBallPosition_level1 = new short[]
@@ -112,83 +112,42 @@ public class CogitoController : MonoBehaviour
         _pattern_end
     };
 
-    // pattern: level 0 or easy: 2x 1cell, 2x 2cells, 2x 3 cells
+    // pattern: level 0 or easy: 6x 3 cells
     private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>()
     {
-        new bool[16] {true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true},
-        new bool[16] {true, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true},
-        new bool[16] {true, true, true, true, true, true, true, true, true, true, true, false, true, true, false, true},
-        new bool[16] {true, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true},
-        new bool[16]
-            {true, true, true, true, false, true, false, false, true, true, true, true, true, true, true, true},
-        new bool[16]
-            {true, true, false, false, true, true, true, true, true, true, true, true, true, true, false, true},
+        new bool[16] { true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true, },
+        new bool[16] { true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, },
+        new bool[16] { true,  false,  true,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true, },
+        new bool[16] { false,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true, },
+        new bool[16] { true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true,  false,  true, },
+        new bool[16] { true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true, },
         _pattern_end
     };
 
-    // pattern: level 1 or middle: 2x 3 cells, 2x 4 cells, 2x 5 cells
+    // pattern: level 1 or middle: 6x 5 cells
     private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
     {
-        new bool[16]
-            {true, true, true, false, false, true, true, false, true, true, true, true, true, true, true, true},
-        new bool[16]
-            {true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false},
-        new bool[16]
-            {false, true, true, false, true, true, false, false, true, true, true, true, true, true, true, true},
-        new bool[16]
-            {false, true, true, true, true, true, true, true, false, true, false, true, true, true, true, false},
-        new bool[16]
-            {true, true, true, true, true, true, false, true, false, true, true, false, true, false, true, false},
-        new bool[16]
-            {true, false, false, true, true, false, true, true, false, true, false, true, true, true, true, true},
+        new bool[16] { true,  true,  false,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true, },
+        new bool[16] { true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  false,  true, },
+        new bool[16] { true,  false,  true,  true,  true,  true,  true,  false,  false,  true,  false,  true,  false,  true,  true,  true, },
+        new bool[16] { true,  true,  false,  true,  true,  false,  true,  true,  false,  false,  true,  true,  false,  true,  true,  true, },
+        new bool[16] { true,  false,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  false, },
+        new bool[16] { true,  false,  true,  true,  true,  false,  true,  true,  false,  true,  false,  true,  true,  true,  true,  false, },
         _pattern_end
     };
 
-    // pattern: level 2 or hard: 2x 6 cells, 2x 7 cells, 2x 8 cells
+    // pattern: level 2 or hard: 3x 6 cells, 3x 7 cells, 3x 8 cells
     private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
     {
-        new bool[16]
-        {
-            false, true, false, false,
-            false, true, false, true,
-            true, true, true, true,
-            true, false, true, true
-        },
-        new bool[16]
-        {
-            true, false, true, true,
-            false, true, true, false,
-            true, true, false, true,
-            false, true, true, false
-        },
-        new bool[16]
-        {
-            true, true, false, false,
-            false, true, true, true,
-            true, true, false, false,
-            false, true, false, true
-        },
-        new bool[16]
-        {
-            false, false, true, false,
-            false, true, false, true,
-            true, true, true, false,
-            true, true, false, true
-        },
-        new bool[16]
-        {
-            false, true, false, true,
-            false, true, true, false,
-            false, true, false, true,
-            true, false, true, false
-        },
-        new bool[16]
-        {
-            true, false, false, true,
-            true, false, true, false,
-            false, true, false, false,
-            false, true, true, true
-        },
+        new bool[16] {false, true, false, false, false, true, false, true, true, true, true, true, true, false, true, true},
+        new bool[16] {true, false, true, true, false, true, true, false, true, true, false, true, false, true, true, false},
+        new bool[16] {true, true, true, false, true, true, true, false, false, true, false, true, true, false, false, true },
+        new bool[16] {true, true, false, false, false, true, true, true, true, true, false, false, false, true, false, true},
+        new bool[16] {false, false, true, false, false, true, false, true, true, true, true, false, true, true, false, true},
+        new bool[16] { true, false, false, true, true, true, true, true, false, true, false, false, false, false, true, true},
+        new bool[16] {false, true, false, true, false, true, true, false, false, true, false, true, true, false, true, false},
+        new bool[16] {true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, true},
+        new bool[16] {true, false, true, false, true, true, false, true, false, true, false, true, true, false, false, false},
         _pattern_end
     };
 
@@ -682,7 +641,7 @@ public class CogitoController : MonoBehaviour
         else if (_nStage == 4)
         {
             TxtInstructions_Ball.text = "";
-            TxtInstructions_Pattern.text = "Marca el patrón que memorizaste y pulsa OK";
+            TxtInstructions_Pattern.text = "Marca el patrón que memorizaste y pulsa OK. Tienes máx. 10 seg.";
         }
     }
     

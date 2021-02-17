@@ -12,7 +12,6 @@ public class MenuController : MonoBehaviour
     public Button BtnShareLog;
     private string _pathLogFile;
     public Button BtnExit;
-    public Dropdown DropBorrar; // TODO : remove this and related code
     private string _logs = "";
 #if UNITY_ANDROID
     private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
@@ -104,29 +103,10 @@ public class MenuController : MonoBehaviour
         ToLog("_0_ testing starts_NA_NA");
         WriteLog();
         Loader.Load(Loader.Scene.CalibrationScene);
-        // after calibration scene, it starts the game scene
-        //// TODO: remove next code line
-        // Loader.Load(Loader.Scene.GameScene);
     }
     
     private void GoToGame()
     {
-        // ------- remove code from here --------
-        int selectedLevel = DropBorrar.value;
-        print(selectedLevel);
-        if (selectedLevel > 0)
-        {
-            // setting file for level. Set level to 0
-            WriteFile( CreateFile("SettingsLevel.txt") , ""+selectedLevel, "r");
-
-            // create setting file for game type: base, haptic, auditory, haptic-auditory
-            // this file will be modified in personalDataController
-            WriteFile( CreateFile("SettingsTestVersion.txt") , "HA", "r");
-            WriteLog();
-            Loader.Load(Loader.Scene.GameScene);
-            return;
-        }
-        // --------    up to here    --------- 
 #if UNITY_ANDROID
         // get volume intensity
         sound.GetSystemVolume();

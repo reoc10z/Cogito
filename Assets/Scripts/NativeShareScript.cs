@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class NativeShareScript : MonoBehaviour
 {
-    private bool isProcessing = false;
-    private bool isFocus = false;
     private string _pathLogFile;
     public Text TxtPath;
     public Button BtnMenu;

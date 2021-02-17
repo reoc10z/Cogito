@@ -94,7 +94,7 @@ public class PersonalDataController : MonoBehaviour
             return;
         }
         // get data from input
-        string testVersion = GetSelectedToggle(TestVersion); // a)base, b)H, c)A, d)HA
+        string testVersion = GetSelectedToggle(TestVersion); // a)Base, b)Haptic, c)Auditory, d)HapticAuditory
         string age = Age.text;
         string work = Work.text;
         string sex = GetSelectedToggle(Sex);
