@@ -215,8 +215,9 @@ public class CogitoController : MonoBehaviour
         
         // test version: base, H, A, HA 
         _testVersion = ReadFile(_pathTestVersionFile);
+        
         // If haptics:
-        if (_testVersion == "H" || _testVersion == "HA")
+        if (_testVersion == "Haptic" || _testVersion == "HapticAuditory")
         {
             // Initialize the plugin for vibrations
             Vibration.Init();
@@ -225,11 +226,15 @@ public class CogitoController : MonoBehaviour
         else
             _toVibrate = false;
         // If auditory:
-        if (_testVersion == "A" || _testVersion == "HA")
+        if (_testVersion == "Auditory" || _testVersion == "HapticAuditory")
             _toPlaySound = true;
         else
             _toPlaySound = false;
 
+        print(_testVersion);
+        print(_toPlaySound);
+        print(_toVibrate);
+        
         // initiate variables for the next level
         NextLevel();
         
