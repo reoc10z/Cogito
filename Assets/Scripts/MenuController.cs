@@ -109,7 +109,6 @@ public class MenuController : MonoBehaviour
     {
 #if UNITY_ANDROID
         // get volume intensity
-        sound.GetSystemVolume();
         float vol = 100.0f * sound.GetSystemVolume();
         ToLog("_0_ volume (%) _ " + vol.ToString("0.00")+"_NA" );
 #endif

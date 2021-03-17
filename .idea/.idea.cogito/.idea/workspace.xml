@@ -21,7 +21,11 @@
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Apks/Cogito_v02.apk" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +34,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Loader.cs" root0="FORCE_HIGHLIGHTING" />
@@ -51,8 +63,8 @@
       <option value="$PROJECT_DIR$/Assets/Scripts/ShareFile.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/CalibrationController.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/PersonalDataController.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/NativeShareScript.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/MenuController.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" />
     </changedPaths>
   </component>
@@ -137,6 +149,9 @@
       <workItem from="1613767305803" duration="555000" />
       <workItem from="1614961270206" duration="130000" />
       <workItem from="1614961616265" duration="1025000" />
+      <workItem from="1615911653573" duration="94000" />
+      <workItem from="1615911773182" duration="1382000" />
+      <workItem from="1615929661108" duration="7654000" />
     </task>
     <servers />
   </component>

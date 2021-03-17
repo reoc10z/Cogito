@@ -93,23 +93,24 @@ public class CogitoController : MonoBehaviour
     public GameObject ArrowsPanel;
     private bool _allowBallMovement;
 
-    // question pattern: shown pattern to be learnt 
-    public GameObject MatrixQuestion;
+    // question pattern: shown pattern to be learnt
+    
+    public GameObject MatrixQ_level0; 
+    public GameObject MatrixQ_level1; 
+    public GameObject MatrixQ_level2; 
+    private GameObject _matrixQuestion;
     private Image[] _listQuestionCells;
     private List<bool[]> _listQuestionPatterns = new List<bool[]>();
     private short _kPattern = 0;
 
     // patterns by level
-    private static bool[]
-        _pattern_end =
-            new bool[16]; // so, it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
-
+    
     // pattern: training level
     private readonly List<bool[]> _listQuestionPatterns_levelTraining = new List<bool[]>()
     {
         new bool[16] {false,false, true, true, false, false, true, true, true, true, true, true, true, true, true, true},
         new bool[16] {false, false, true, true, true, false, false, true, true, true, false, false, true, true, true, true },
-        _pattern_end
+        new bool[16], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
     // pattern: level 0 or easy: 6x 3 cells
@@ -121,43 +122,45 @@ public class CogitoController : MonoBehaviour
         new bool[16] { false,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true, },
         new bool[16] { true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true,  false,  true, },
         new bool[16] { true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true, },
-        _pattern_end
+        new bool[16], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
     // pattern: level 1 or middle: 6x 5 cells
     private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
     {
-        new bool[16] { true,  true,  false,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true, },
-        new bool[16] { true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  false,  true, },
-        new bool[16] { true,  false,  true,  true,  true,  true,  true,  false,  false,  true,  false,  true,  false,  true,  true,  true, },
-        new bool[16] { true,  true,  false,  true,  true,  false,  true,  true,  false,  false,  true,  true,  false,  true,  true,  true, },
-        new bool[16] { true,  false,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  false, },
-        new bool[16] { true,  false,  true,  true,  true,  false,  true,  true,  false,  true,  false,  true,  true,  true,  true,  false, },
-        _pattern_end
+        new bool[25] { true,  true,  false,  true,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  false, },
+        new bool[25] { true,  true,  true,  false,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true, },
+        new bool[25] { false,  true,  false,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true, },
+        new bool[25] { true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  false,  true,  true,  false,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true,  true, },
+        new bool[25] { true,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true, },
+        new bool[25] { true,  true,  false,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  false,  true,  false,  true, },
+        new bool[25], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
     // pattern: level 2 or hard: 3x 6 cells, 3x 7 cells, 3x 8 cells
     private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
     {
-        new bool[16] {false, true, false, false, false, true, false, true, true, true, true, true, true, false, true, true},
-        new bool[16] {true, false, true, true, false, true, true, false, true, true, false, true, false, true, true, false},
-        new bool[16] {true, true, true, false, true, true, true, false, false, true, false, true, true, false, false, true },
-        new bool[16] {true, true, false, false, false, true, true, true, true, true, false, false, false, true, false, true},
-        new bool[16] {false, false, true, false, false, true, false, true, true, true, true, false, true, true, false, true},
-        new bool[16] { true, false, false, true, true, true, true, true, false, true, false, false, false, false, true, true},
-        new bool[16] {false, true, false, true, false, true, true, false, false, true, false, true, true, false, true, false},
-        new bool[16] {true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, true},
-        new bool[16] {true, false, true, false, true, true, false, true, false, true, false, true, true, false, false, false},
-        _pattern_end
+        new bool[36] { true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true,  false,  true,  false,  false,  true,  true, },
+        new bool[36] { true,  false,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  true,  false,  false,  true,  true,  true,  false,  true,  true,  true, },
+        new bool[36] { true,  true,  false,  true,  true,  true,  true,  false,  false,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true, },
+        new bool[36] { false,  false,  true,  true,  true,  true,  false,  true,  false,  false,  true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true, },
+        new bool[36] { true,  false,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  false,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  false, },
+        new bool[36] { false,  true,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  true,  false,  true,  true,  true,  false,  true,  true,  false,  false,  true,  false,  true,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true, },
+        new bool[36] { true,  false,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  false,  true,  true,  false,  true,  false,  true, },
+        new bool[36] { true,  false,  false,  true,  true,  true,  true,  false,  true,  false,  false,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true, },
+        new bool[36] { true,  false,  true,  false,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  true, },
+        new bool[36], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
     // answer pattern: pattern to mark answers
-    public GameObject MatrixAnswer;
+    public GameObject MatrixA_level0;
+    public GameObject MatrixA_level1;
+    public GameObject MatrixA_level2;
+    private GameObject _matrixAnswer;
     private Toggle[] _listAnswerCells;
 
-    private bool[] _answerPattern = new bool[16]
-        {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-
+    private bool[] _answerPattern;
+    
     public Button Btn_OK;
     private bool _registerAnswer = false;
 
@@ -235,7 +238,7 @@ public class CogitoController : MonoBehaviour
         print(_toPlaySound);
         print(_toVibrate);
         
-        // initiate variables for the next level
+        // initiate variables for the next level. For example question and answer patterns
         NextLevel();
         
         // general settingss
@@ -249,12 +252,12 @@ public class CogitoController : MonoBehaviour
         HighlightsInstructions[1].SetActive(false);
 
         // question pattern
-        _listQuestionCells = MatrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
+        _listQuestionCells = _matrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
         _kPattern = 0;
         MatrixQuestionController(false); // turn off pattern but enlist next pattern
         // answer pattern
-        _listAnswerCells = MatrixAnswer.GetComponentsInChildren<Toggle>().ToArray();
-        MatrixAnswer.SetActive(false);
+        _listAnswerCells = _matrixAnswer.GetComponentsInChildren<Toggle>().ToArray();
+        _matrixAnswer.SetActive(false);
         Btn_OK.onClick.AddListener(BtnOKanswer);
         Btn_OK.gameObject.SetActive(false);
         
@@ -374,16 +377,34 @@ public class CogitoController : MonoBehaviour
             _timesFrame = new int[] {2000, 10000, 15000, 4000, 15000}; // more time for warming up
             // ball positions
             _listBallPosition = _listBallPosition_levelTraining;
-            // patterns
+            // question patterns
             _listQuestionPatterns = _listQuestionPatterns_levelTraining;
+            _matrixQuestion = MatrixQ_level0;
+            MatrixQ_level1.SetActive(false);
+            MatrixQ_level2.SetActive(false);
+            // answer patterns
+            _answerPattern = new bool[16]
+                {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            _matrixAnswer = MatrixA_level0;
+            MatrixA_level1.SetActive(false);
+            MatrixA_level2.SetActive(false);
         }
         else if (_level == 0)
         {
             // level BASIC
             // ball positions
             _listBallPosition = _listBallPosition_level0;
-            // patterns
+            // question patterns
             _listQuestionPatterns = _listQuestionPatterns_level0;
+            _matrixQuestion = MatrixQ_level0;
+            MatrixQ_level1.SetActive(false);
+            MatrixQ_level2.SetActive(false);
+            // answer patterns
+            _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            _matrixAnswer = MatrixA_level0;
+            MatrixA_level1.SetActive(false);
+            MatrixA_level2.SetActive(false);
+
         } else if (_level == 1)
         {
             // level MIDDLE
@@ -391,6 +412,14 @@ public class CogitoController : MonoBehaviour
             _listBallPosition = _listBallPosition_level1;
             // patterns
             _listQuestionPatterns = _listQuestionPatterns_level1;
+            _matrixQuestion = MatrixQ_level1;
+            MatrixQ_level0.SetActive(false);
+            MatrixQ_level2.SetActive(false);
+            _answerPattern = new bool[25] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            _matrixAnswer = MatrixA_level1;
+            MatrixA_level0.SetActive(false);
+            MatrixA_level2.SetActive(false);
+            
         } else if (_level == 2)
         {
             // level HEAVY
@@ -398,6 +427,14 @@ public class CogitoController : MonoBehaviour
             _listBallPosition = _listBallPosition_level2;
             // patterns
             _listQuestionPatterns = _listQuestionPatterns_level2;
+            _matrixQuestion = MatrixQ_level2;
+            MatrixQ_level0.SetActive(false);
+            MatrixQ_level1.SetActive(false);
+            _answerPattern = new bool[36] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+            _matrixAnswer = MatrixA_level2;
+            MatrixA_level0.SetActive(false);
+            MatrixA_level1.SetActive(false);
+            
         }
         
         _idxBallPosition = 0; // reset index of ball position
@@ -760,7 +797,7 @@ public class CogitoController : MonoBehaviour
         if (on)
         {
             // show pattern
-            MatrixQuestion.SetActive(true);
+            _matrixQuestion.SetActive(true);
             ToLog("_20_ system pattern _ " + (_kPattern) + " _ " + 
                   String.Join(",", new List<bool>(_listQuestionPatterns[(_kPattern)]).ConvertAll(i => i.ToString()).ToArray())
                   );
@@ -770,7 +807,7 @@ public class CogitoController : MonoBehaviour
         else
         {
             // hide pattern
-            MatrixQuestion.SetActive(false);
+            _matrixQuestion.SetActive(false);
             // enlist next pattern
             NextPattern(_listQuestionCells, _listQuestionPatterns[_kPattern]);
         }
@@ -781,7 +818,7 @@ public class CogitoController : MonoBehaviour
         if (on)
         {
             _registerAnswer = true;
-            MatrixAnswer.SetActive(true);
+            _matrixAnswer.SetActive(true);
             Btn_OK.gameObject.SetActive(true);
             Btn_OK.interactable = true;
             ToLog("_21_ answer pattern starts" +"_NA" +"_NA");
@@ -793,7 +830,7 @@ public class CogitoController : MonoBehaviour
             ToLog("_24_ answer pattern ends by system _ " + (_kPattern - 1) + " _ " + 
                   String.Join(",", new List<bool>(_answerPattern).ConvertAll(i => i.ToString()).ToArray())
             );
-            MatrixAnswer.SetActive(false);
+            _matrixAnswer.SetActive(false);
             Btn_OK.gameObject.SetActive(false);
             // reset cells to true (white). when changing the value of each cell, the attached-to-button function BtnOKanswer() modifies the array _answerPattern
             foreach (Toggle cell in _listAnswerCells)
@@ -843,7 +880,7 @@ public class CogitoController : MonoBehaviour
     {
         ToLog("_23_ answer pattern ends by user ok button" +"_NA" +"_NA");
         Btn_OK.interactable = false;
-        MatrixAnswer.SetActive(false);
+        _matrixAnswer.SetActive(false);
         ScreenMsg.SetActive(true);
         ScreenMsg.GetComponentsInChildren<Text>()[0].text = "Espera...";
         _timerFrame = 500.0f; // reduce time to go to next scene to 500ms
