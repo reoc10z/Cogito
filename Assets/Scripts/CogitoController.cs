@@ -113,7 +113,7 @@ public class CogitoController : MonoBehaviour
         new bool[16], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
-    // pattern: level 0 or easy: 6x 3 cells
+    // pattern: level 0 or easy: 6 patterns (4x4 with 3 black cells)
     private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>()
     {
         new bool[16] { true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true, },
@@ -125,7 +125,7 @@ public class CogitoController : MonoBehaviour
         new bool[16], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
-    // pattern: level 1 or middle: 6x 5 cells
+    // pattern: level 1 or middle: 6 patterns (5x5 with 6 black cells)
     private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
     {
         new bool[25] { true,  true,  false,  true,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  false, },
@@ -137,7 +137,7 @@ public class CogitoController : MonoBehaviour
         new bool[25], // pattern_end: it is set to false. This pattern HAS TO be used at the end of all pattern lists of each level
     };
 
-    // pattern: level 2 or hard: 3x 6 cells, 3x 7 cells, 3x 8 cells
+    // pattern: level 2 or hard: 9 patterns (6x6 with 9 black cells)
     private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
     {
         new bool[36] { true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true,  false,  true,  false,  false,  true,  true, },
