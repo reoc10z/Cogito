@@ -1,7 +1,7 @@
 # Cogito
 
-This project codes an app for analyzing signals priming (haptic and auditory) when visual tasks of high cognitive load 
+This project codes an app to analyze human cognitive load when doing visual tasks of high cognitive load. It uses signal priming with haptic and auditory stimuli. 
 
-Code by:
-Rafael Ospina - 2020
+Designed and coded by:
+Rafael Ospina - 2021
 Universidad Icesi. Cali, Colombia
