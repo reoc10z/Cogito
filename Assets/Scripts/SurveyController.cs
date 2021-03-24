@@ -278,8 +278,9 @@ public class SurveyController : MonoBehaviour
             
             InformationText.gameObject.SetActive(true);
             InformationText.text = "¡Muchas gracias por tu participación! :). \n\n " +
-                                   "Ahora envia un correo con tus resultados usando el botón Enviar Resultados \n" +
-                                   "en la siguiente pantalla";
+                                   "Ahora, \n"+
+                                   "1- Activa tus datos o wifi, \n" +
+                                   "2- Envia un correo con tus resultados usando el botón Enviar Resultados en la siguiente pantalla";
         }
         else if (nextQuestion == 8)
         {

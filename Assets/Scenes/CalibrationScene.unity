@@ -696,10 +696,11 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "1- Debes usar aud\xEDfonos durante todo el experimento.\n\n2- \xBFEst\xE1s
-    escuchando el sonido en este momento?\nSube el volumen de tu celular al valor
-    m\xE1s fuerte posible que no sea da\xF1ino para tus o\xEDdos.\n\n3- Durante todo
-    el experimento, mant\xE9n el mismo volumen que est\xE1s colocando."
+  m_Text: "1- Desactiva tus datos y wifi para evitar distracciones.\n\n2- Debes usar
+    aud\xEDfonos durante todo el experimento.\n\n2- \xBFEst\xE1s escuchando el sonido
+    en este momento?\nSube el volumen de tu celular al valor m\xE1s fuerte posible
+    que no sea da\xF1ino para tus o\xEDdos.\n\n3- Durante todo el experimento, mant\xE9n
+    el mismo volumen que est\xE1s colocando."
 --- !u!222 &1834155651
 CanvasRenderer:
   m_ObjectHideFlags: 0
