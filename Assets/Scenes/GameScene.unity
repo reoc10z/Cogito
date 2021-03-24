@@ -12512,8 +12512,8 @@ MonoBehaviour:
   HighlightsInstructions:
   - {fileID: 1206346905}
   - {fileID: 930005704}
-  BallTimeCycle: 3000
-  _timesFrame: e80300008813000010270000e803000010270000
+  BallTimeCycle: 2250
+  _timesFrame: e80300008813000070300000e803000010270000
   Ball: {fileID: 535144240}
   Ruler: {fileID: 421415988}
   ArrowsPanel: {fileID: 1819092820}

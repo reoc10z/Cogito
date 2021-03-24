@@ -21,7 +21,10 @@
   <component name="ChangeListManager">
     <list default="true" id="1709de22-82a4-4fbc-adf4-4fc20206810c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.cogito/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/GameScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MenuScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CogitoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,6 +153,9 @@
       <workItem from="1615929661108" duration="8253000" />
       <workItem from="1616457583608" duration="606000" />
       <workItem from="1616510396381" duration="436000" />
+      <workItem from="1616515664098" duration="565000" />
+      <workItem from="1616520522274" duration="224000" />
+      <workItem from="1616529278400" duration="478000" />
     </task>
     <servers />
   </component>
