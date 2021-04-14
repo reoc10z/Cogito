@@ -47,6 +47,7 @@
           <e p="PersonalDataController.cs" t="Include" />
           <e p="SurveyController.cs" t="Include" />
         </e>
+        <e p="SettingsHapticDelay.txt" t="Include" />
         <e p="SettingsLevel.txt" t="Include" />
         <e p="SettingsTestVersion.txt" t="Include" />
       </e>

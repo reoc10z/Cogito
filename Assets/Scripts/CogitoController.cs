@@ -27,6 +27,7 @@ public class CogitoController : MonoBehaviour
     private int _nStage = 0;
     private string _pathLogFile;
     private string _pathSettingsFile;
+    private string _pathSettingsHapticDelayFile;
     private string _pathTestVersionFile;
     private string _testVersion;
     private string _logs = "";
@@ -178,17 +179,9 @@ public class CogitoController : MonoBehaviour
     
     // haptic
     //vibration. Pattern has to be: off, on, off, on time
-    private const int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
+    private int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
     private const int Vt = 50; // vibrationTime
-    private readonly List<long[]> _vibrationPatterns = new List<long[]>()
-    {
-        new long[] {Vd, Vt}, // 1 pulse
-        new long[] {Vd, Vt, Vt, Vt}, // 2 pulses
-        new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
-        new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 4 pulses
-        new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 5 pulses
-        new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} // 6 pulses
-    };
+    private List<long[]> _vibrationPatterns;
     private long[] _vibrationTimePatterns; // array that includes the time length for each item in _vibratioPatterns
     private bool _isVibration;
 
@@ -210,6 +203,18 @@ public class CogitoController : MonoBehaviour
         // define path to setting file for level
         _pathSettingsFile = GetPathFile("SettingsLevel.txt");
         _pathTestVersionFile = GetPathFile("SettingsTestVersion.txt");
+        _pathSettingsHapticDelayFile = GetPathFile("SettingsHapticDelay.txt");
+        
+        Vd = int.Parse( ReadFile(_pathSettingsHapticDelayFile) );
+        _vibrationPatterns = new List<long[]>()
+        {
+            new long[] {Vd, Vt}, // 1 pulse
+            new long[] {Vd, Vt, Vt, Vt}, // 2 pulses
+            new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
+            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 4 pulses
+            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 5 pulses
+            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} // 6 pulses
+        };
     }
 
     // Start is called before the first frame update
@@ -622,44 +627,42 @@ public class CogitoController : MonoBehaviour
     // CheckIfStimuliEnded: it checks if primmed stimuli have ended and returns a boolean
     private bool CheckIfStimuliEnded()
     {
-        if (_isAudio)
+        if(_isVibration)
         {
-            if (_zeit.ElapsedMilliseconds - _timeSinceAudioPlay > AudioPulses[_idxStimuli].clip.length)
+            if (_zeit.ElapsedMilliseconds - _timeSinceVibrationStarts > _vibrationTimePatterns[_idxStimuli])
             {
-                if (!AudioPulses[_idxStimuli].isPlaying)
-                {
-                    // when audio-play ends
-                    _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("_13_ sound ends _ " + (_idxStimuli + 1) +"_NA" );
-                    _isAudio = false;
-                    // vibration is false, just in case audio and vibrations are executed in parallel
-                    _isVibration = false; // after testing, vibration always ends before the auditory stimulus
-                }
+                // when vibration ends
+                _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
+                _isVibration = false;
+                _isAudio = false; // because if.
+                ToLog("_15_ vibration ends _ " + (_idxStimuli + 1) +"_NA" , _timeSinceEndStimulus );
             }
         }
-        else
+        else if (_isAudio)
         {
-            if (_isVibration)
+            if (_zeit.ElapsedMilliseconds - _timeSinceAudioPlay > _vibrationTimePatterns[_idxStimuli]) // _vibrationTimePatterns includes the delay included to correct the hw delay to reproduce an audio
             {
-                if (_zeit.ElapsedMilliseconds - _timeSinceVibrationStarts > _vibrationTimePatterns[_idxStimuli])
-                {
-                    // when vibration ends
-                    _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
-                    ToLog("_15_ vibration ends _ " + (_idxStimuli + 1) +"_NA" );
-                    _isVibration = false;
-                    _isAudio = false; // because if.
-                }
+                // when audio-play ends
+                _timeSinceEndStimulus = _zeit.ElapsedMilliseconds;
+                _isAudio = false;
+                _isVibration = false; // vibration is false, just in case audio and vibrations are executed in parallel. // after testing, vibration always ends before the auditory stimulus
+                ToLog("_13_ sound ends _ " + (_idxStimuli + 1) +"_NA" , _timeSinceEndStimulus);
             }
-        }
+        } 
         return !(_isAudio | _isVibration);
     }
     
     // append new message to the general log message
-    private void ToLog(string msg)
+    private void ToLog(string msg, float timestamp = -1.0f)
     {
         if (_level < 0) 
             return; // if TESTING level do not log
-        msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
+        if (timestamp<0.0f)
+            msg = _zeit.ElapsedMilliseconds +" " + msg + "\n";
+        else
+        {
+            msg = timestamp +" " + msg + "\n";
+        }
         _logs += msg;
         print(msg);
     }
@@ -735,16 +738,16 @@ public class CogitoController : MonoBehaviour
     private void Vibrate(long[] vibrationPattern)
     {
         _timeSinceVibrationStarts = _zeit.ElapsedMilliseconds;
-        ToLog("_14_ vibration starts _ " + (_idxStimuli + 1) +"_NA");
         Vibration.Vibrate(vibrationPattern, -1);
+        ToLog("_14_ vibration starts _ " + (_idxStimuli + 1) +"_NA", _timeSinceVibrationStarts);
         _isVibration = true;
     }
 
     private void PlaySound(AudioSource _audio)
     {
         _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-        ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) +"_NA" );
         _audio.Play(0);
+        ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) +"_NA" , _timeSinceAudioPlay );
         _isAudio = true;
     }
     

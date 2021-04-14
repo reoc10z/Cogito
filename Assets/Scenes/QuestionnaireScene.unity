@@ -3086,7 +3086,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\xBFSinti\xF3 alguna vibraci\xF3n? "
+  m_Text: "Sin incluir la etapa de calibracion, \xBFsinti\xF3 alguna vibraci\xF3n? "
 --- !u!222 &1204172012
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3958,7 +3958,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\xBFEscuch\xF3 alg\xFAn sonido diferente al sonido de fondo?:"
+  m_Text: "Sin incluir la etapa de calibraci\xF3n, \xBFescuch\xF3 alg\xFAn sonido
+    diferente al sonido de fondo?:"
 --- !u!222 &1646544706
 CanvasRenderer:
   m_ObjectHideFlags: 0

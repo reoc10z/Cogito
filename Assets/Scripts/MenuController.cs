@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 public class MenuController : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class MenuController : MonoBehaviour
     public Button BtnStartTest;
     public Button BtnShareLog;
     private string _pathLogFile;
+    private string _pathSettingsHapticDelayFile;
     public Button BtnExit;
     private string _logs = "";
 #if UNITY_ANDROID
@@ -28,6 +30,10 @@ public class MenuController : MonoBehaviour
     {
         //log file
         _pathLogFile  = CreateFile("Log.txt");
+        
+        // create setting file for delay time for the haptic stimulus
+        // this file will be modified in CalibrationController and read by CogitoController 
+        _pathSettingsHapticDelayFile = CreateFile("SettingsHapticDelay.txt");
 
         // initial logs
         ToLog("_0_ app starts _ " + System.DateTime.Now + "_NA" );
@@ -60,6 +66,12 @@ public class MenuController : MonoBehaviour
         else if (type=="r")
             File.WriteAllText(filePath, msg);
     }
+    
+    private string ReadFile(string filePath)
+    {
+        // read filepath and return all text as one string
+        return System.IO.File.ReadAllText(filePath);
+    }
 
 
     private string GetPathFile(string fileName)
@@ -77,8 +89,6 @@ public class MenuController : MonoBehaviour
         return filePath;
     }
     
-    //t ype = 0 for a setting file.
-    // type = 1 for log file.
     // if file already exists, it returns that path.
     private string CreateFile(string fileName)
     {
@@ -96,10 +106,14 @@ public class MenuController : MonoBehaviour
     {
         // setting file for level. Set level to -1
         WriteFile( CreateFile("SettingsLevel.txt") , "-1", "r");
+        WriteFile( CreateFile("SettingsLevel.txt") , "2", "r"); // todo: remove this line
         
         // set file for game type setting: base, H, A, HA
         WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
+        WriteFile( CreateFile("SettingsTestVersion.txt") , "HapticAuditory", "r"); // todo: remove this line
+        WriteFile( CreateFile("SettingsTestVersion.txt") , "Haptic", "r"); // todo: remove this line
         
+
         ToLog("_0_ testing starts_NA_NA");
         WriteLog();
         Loader.Load(Loader.Scene.CalibrationScene);
@@ -119,6 +133,16 @@ public class MenuController : MonoBehaviour
         // this file will be modified in personalDataController
         WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
         
+        // set value to time delay for haptic stimulus
+        string hapticsDelay = ReadFile(_pathSettingsHapticDelayFile);
+        if (hapticsDelay == "")
+        {
+            hapticsDelay = "0";
+            // if empty, write 0 as delay for haptics
+            WriteFile(_pathSettingsHapticDelayFile, hapticsDelay, "r");
+        }
+        ToLog("_0_ delay for haptics (ms) _ " + hapticsDelay +"_NA" );
+
         WriteLog();
         Loader.Load(Loader.Scene.PlayerDataScene);
     }
