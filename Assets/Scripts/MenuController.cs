@@ -106,14 +106,14 @@ public class MenuController : MonoBehaviour
     {
         // setting file for level. Set level to -1
         WriteFile( CreateFile("SettingsLevel.txt") , "-1", "r");
-        WriteFile( CreateFile("SettingsLevel.txt") , "2", "r"); // todo: remove this line
+        //WriteFile( CreateFile("SettingsLevel.txt") , "2", "r"); // todo: remove this line
         
         // set file for game type setting: base, H, A, HA
         WriteFile( CreateFile("SettingsTestVersion.txt") , "", "r");
-        WriteFile( CreateFile("SettingsTestVersion.txt") , "HapticAuditory", "r"); // todo: remove this line
-        WriteFile( CreateFile("SettingsTestVersion.txt") , "Haptic", "r"); // todo: remove this line
+        //WriteFile( CreateFile("SettingsTestVersion.txt") , "HapticAuditory", "r"); // todo: remove this line
+        //WriteFile( CreateFile("SettingsTestVersion.txt") , "Auditory", "r"); // todo: remove this line
+        //WriteFile( CreateFile("SettingsTestVersion.txt") , "Haptic", "r"); // todo: remove this line
         
-
         ToLog("_0_ testing starts_NA_NA");
         WriteLog();
         Loader.Load(Loader.Scene.CalibrationScene);

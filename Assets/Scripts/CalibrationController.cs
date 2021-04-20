@@ -1,28 +1,31 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 using UnityEngine.UI;
 using System.IO;
 using System.Linq;
+#if PLATFORM_ANDROID
+using UnityEngine.Android;
+#endif
 
 public class CalibrationController : MonoBehaviour
 {
-    public Button BtnNext;
-    public AudioSource BackgroundSound;
-    public AudioSource BeepSound;
+    public Button btnNext;
+    public AudioSource beepSound;
     public Text textVol;
-    public Text TextInformation;
-    public Button BtnPlay;
-    public Button BtnDelayMore;
-    public Button BtnDelayBitMore;
-    public Button BtnDelayLess;
-    public Button BtnDelayBitLess;
-    public Button BtnAutoCalibration;
-
+    public Text textInformation;
+    public Button btnPlay;
+    public Button btnDelayMore;
+    public Button btnDelayBitMore;
+    public Button btnDelayLess;
+    public Button btnDelayBitLess;
+    public Button btnAutoCalibration;
+    
+    private GameObject dialog = null;
     private int _hapticDelay = 0;
     private int _hapticDelayTemp = 0;
-    private int stage = 0;
     private Stopwatch _zeit = new Stopwatch();
     private long _deltaFramesTime = 0;
     private bool _playingStimuli = false;
@@ -31,10 +34,11 @@ public class CalibrationController : MonoBehaviour
     private AudioSource _audioMicrophone;
     private readonly int _nCalibrationRecs = 3;
     private int _kRecord = 0;
-    private bool _ready2record = false;
-    private int _calibrating_step = 0;
+    private bool _ready2Record = false;
+    private int _calibratingStep = -1;
     private readonly int _sampleRate = 44100;
     private float[] _dataAudioOriginal;
+    private int _stage = 0;
 
     private const int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
     private const int Vt = 50; // vibrationTime
@@ -42,113 +46,114 @@ public class CalibrationController : MonoBehaviour
     {
         new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
     };
-    
-#if UNITY_ANDROID
-    private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
-#endif
 
 
-    void Awake()
+    private void Awake()
     {
-        BtnPlay.gameObject.SetActive(false);
-        BtnDelayMore.gameObject.SetActive(false);
-        BtnDelayBitMore.gameObject.SetActive(false);
-        BtnDelayLess.gameObject.SetActive(false);
-        BtnDelayBitLess.gameObject.SetActive(false);
-        
-        BtnAutoCalibration.gameObject.SetActive(false);
+        textVol.gameObject.SetActive(false);
+        btnPlay.gameObject.SetActive(false);
+        btnDelayMore.gameObject.SetActive(false);
+        btnDelayBitMore.gameObject.SetActive(false);
+        btnDelayLess.gameObject.SetActive(false);
+        btnDelayBitLess.gameObject.SetActive(false);
+        btnAutoCalibration.gameObject.SetActive(false);
     }
+
     // Start is called before the first frame update
     void Start()
     {
+        // keep screen always active
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        
         _pathSettingsHapticDelayFile = GetPathFile("SettingsHapticDelay.txt");
-        BtnNext.onClick.AddListener(ClickOnNext);
-        BackgroundSound.Play();
-        BtnPlay.onClick.AddListener(ApplyStimuli);
-        BtnDelayMore.onClick.AddListener(IncreaseHapticDelay);
-        BtnDelayBitMore.onClick.AddListener(IncreaseBitHapticDelay);
-        BtnDelayLess.onClick.AddListener(DecreaseHapticDelay);
-        BtnDelayBitLess.onClick.AddListener(DecreaseBitHapticDelay);
+        btnAutoCalibration.onClick.AddListener(AutoCalibration);
+        btnPlay.onClick.AddListener(ApplyStimuli);
+        btnDelayMore.onClick.AddListener(IncreaseHapticDelay);
+        btnDelayBitMore.onClick.AddListener(IncreaseBitHapticDelay);
+        btnDelayLess.onClick.AddListener(DecreaseHapticDelay);
+        btnDelayBitLess.onClick.AddListener(DecreaseBitHapticDelay);
+        btnNext.onClick.AddListener(ClickOnNext);
         
-        BtnAutoCalibration.onClick.AddListener(AutoCalibration);
+        _dataAudioOriginal = new float[beepSound.clip.samples];
+        beepSound.clip.GetData(_dataAudioOriginal, 0);
         
-        _dataAudioOriginal = new float[BeepSound.clip.samples];
-        BeepSound.clip.GetData(_dataAudioOriginal, 0);
+#if PLATFORM_ANDROID
+        // ask permission to microphones access
+        if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
+        {
+            Permission.RequestUserPermission(Permission.Microphone);
+            dialog = new GameObject();
+        }
+#endif
         
         _audioMicrophone = GetComponent<AudioSource>();
         _audioMicrophone.loop = false;
         
+        // Initialize the plugin for vibrations
+        Vibration.Init();
+        
         _zeit.Start();
+        
     }
-
+    
+        
     void Update()
     {
 #if UNITY_ANDROID
-        if (stage == 0)
-        {
-            float vol = 100.0f * sound.GetSystemVolume();
-            textVol.text = "Volúmen: " + vol.ToString("0.00") + " %";
-            _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        }
-        
-        else if (stage==1)
-        {
-            if (_playingStimuli)
-            {               
-                if (_zeit.ElapsedMilliseconds - _deltaFramesTime >= _hapticDelay)
-                {
-                    Vibration.Vibrate(_vibrationPatterns[0], -1);
-                    _deltaFramesTime = _zeit.ElapsedMilliseconds;
-                    _playingStimuli = false;
-                }
-            }
-            else if (_calibrating_step == 1)
+        if (_playingStimuli)
+        {               
+            if (_zeit.ElapsedMilliseconds - _deltaFramesTime >= _hapticDelay)
             {
-                if (_kRecord < _nCalibrationRecs)
+                Vibration.Vibrate(_vibrationPatterns[0], -1);
+                _deltaFramesTime = _zeit.ElapsedMilliseconds;
+                _playingStimuli = false;
+            }
+        }
+        else if (_calibratingStep == 1)
+        {
+            if (_kRecord < _nCalibrationRecs)
+            {
+                if (_ready2Record)
                 {
-                    if (_ready2record)
-                    {
-                        _audioMicrophone.clip = Microphone.Start("", false, 1, _sampleRate);
-                        
-                        // play sound
-                        BeepSound.Play();
-                        _ready2record = false;
-                        _deltaFramesTime = _zeit.ElapsedMilliseconds; //timestamp
-                        ShowDelayValue(""+ (_nCalibrationRecs-_kRecord));
-                        
-                        print(""+ _deltaFramesTime + " ms : recording- " + _kRecord); // todo: remove line
-                    }
-                    else
-                    {
-                        // when last recording finished, compute delay, then go to next recording
-                        if (Microphone.IsRecording("") == false)
-                        {
-                            float[] dataAudioRecorded = new float[_audioMicrophone.clip.samples];
-                            _audioMicrophone.clip.GetData(dataAudioRecorded, 0);
-                            int delay = ComputeAudioDelay(_dataAudioOriginal, dataAudioRecorded);
-                            print(delay);
-                            _hapticDelayTemp += delay;
-                            _ready2record = true;
-                            _kRecord++;
-                        }
-                    }
+                    _audioMicrophone.clip = Microphone.Start("", false, 1, _sampleRate);
+                    
+                    // play sound
+                    beepSound.Play();
+                    _ready2Record = false;
+                    _deltaFramesTime = _zeit.ElapsedMilliseconds; //timestamp
+                    ShowDelayValue(""+ (_nCalibrationRecs-_kRecord));
                 }
                 else
                 {
-                    ShowDelayValue("...espera 15 segs...");
-                    _calibrating_step = 2;
+                    // when last recording finished, compute delay, then go to next recording
+                    if (Microphone.IsRecording("") == false)
+                    {
+                        float[] dataAudioRecorded = new float[_audioMicrophone.clip.samples];
+                        _audioMicrophone.clip.GetData(dataAudioRecorded, 0);
+                        int delay = ComputeAudioDelay(_dataAudioOriginal, dataAudioRecorded);
+                        print(delay);
+                        _hapticDelayTemp += delay;
+                        _ready2Record = true;
+                        _kRecord++;
+                    }
                 }
-            } else if (_calibrating_step == 2)
-            {
-                _hapticDelay = -1*_hapticDelayTemp / _nCalibrationRecs;
-                // showing computed delay
-                ShowDelayValue( _hapticDelay.ToString() );
-                _calibrating_step = 0;
             }
+            else
+            {
+                _audioMicrophone.clip = null;
+                _calibratingStep = 2;
+            }
+        } else if (_calibratingStep == 2)
+        {
+            _hapticDelay = -1*_hapticDelayTemp / _nCalibrationRecs;
+            // showing computed delay
+            ShowDelayValue( _hapticDelay.ToString() );
+            ActivatedButtons(true);
+            _calibratingStep = -1;
         }
 #endif
     }
-
+    
     private void IncreaseHapticDelay()
     {
         _hapticDelay += 50;
@@ -186,14 +191,28 @@ public class CalibrationController : MonoBehaviour
         _toggleMsg = !_toggleMsg;
     }
     
+    // activate or deactivate buttons
+    private void ActivatedButtons(bool active)
+    {
+        btnNext.interactable = active;
+        btnPlay.interactable = active;
+        btnDelayMore.interactable = active ;
+        btnDelayBitMore.interactable = active ;
+        btnDelayLess.interactable = active ;
+        btnDelayBitLess.interactable = active ;
+        btnAutoCalibration.interactable = active ;
+    }
     
     private void AutoCalibration()
     {
+        // block buttons
+        ActivatedButtons(false);
+        
         // update txt msg
         _hapticDelayTemp = 0;
         _kRecord = 0;
-        _ready2record = true;
-        _calibrating_step = 1;
+        _ready2Record = true;
+        _calibratingStep = 1;
     }
     
     // delays means how much time the second array has to be shifted. However, due to our game logic, we need to 
@@ -255,45 +274,39 @@ public class CalibrationController : MonoBehaviour
         
         // play sound
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        BeepSound.Play();
+        beepSound.Play(); 
         _playingStimuli = true;
-        
-        print(_deltaFramesTime + " : sound"); // todo: remove line
     }
     
     private void ClickOnNext()
     {
-        if (stage == 0)
+        switch (_stage)
         {
-            BackgroundSound.Stop();
-            textVol.text = "> 0 <";
-            TextInformation.text = "4- Pon mucha atención:" +
-                                   "\nCon + y - haz que el sonido y la vibración se sincronicen." +
-                                   "\nPista: lo más probable es que, inicialmente, el sonido suene después que la vibración";
+            case 0:
+                textInformation.text = "3- SIN AUDÍFONOS sube el volumen al máximo posible de tu celular." +
+                                       "\n\n4- Oprime Autocalibración, y en silencio espera 30 segundos." +
+                                       "\n\n5- Ve a la siguiente sección";
+                textVol.gameObject.SetActive(true);
+                btnPlay.gameObject.SetActive(true);
+                btnDelayMore.gameObject.SetActive(true);
+                btnDelayBitMore.gameObject.SetActive(true);
+                btnDelayLess.gameObject.SetActive(true);
+                btnDelayBitLess.gameObject.SetActive(true);
+                btnAutoCalibration.gameObject.SetActive(true);
+                _stage =1;
+                break;
             
-            BtnPlay.gameObject.SetActive(true);
-            BtnDelayMore.gameObject.SetActive(true);
-            BtnDelayBitMore.gameObject.SetActive(true);
-            BtnDelayLess.gameObject.SetActive(true);
-            BtnDelayBitLess.gameObject.SetActive(true);
-            
-            BtnAutoCalibration.gameObject.SetActive(true);
-            
-            // Initialize the plugin for vibrations
-            Vibration.Init();
-            
-            stage = 1;
-        }
-        else if (stage == 1)
-        {
-            GoToNextScene();
+            case 1:
+                //write delay time into file
+                WriteFile(_pathSettingsHapticDelayFile, ""+_hapticDelay,"r");
+                GoToNextScene();
+                break;
         }
     }
+    
     private void GoToNextScene()
     {
-        //write delay time into file
-        WriteFile(_pathSettingsHapticDelayFile, ""+_hapticDelay,"r");
-        Loader.Load(Loader.Scene.GameScene);
+        Loader.Load(Loader.Scene.CalibrationScene2);
     }
     
     // type = a, for appending

@@ -12506,26 +12506,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15fa70ad13c94a2bb6069d7d60dfc06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TxtInstructions_Ball: {fileID: 1796566167}
-  TxtInstructions_Pattern: {fileID: 330050740}
-  ScreenMsg: {fileID: 15239694}
-  HighlightsInstructions:
+  txtInstructionsBall: {fileID: 1796566167}
+  txtInstructionsPattern: {fileID: 330050740}
+  screenMsg: {fileID: 15239694}
+  highlightsInstructions:
   - {fileID: 1206346905}
   - {fileID: 930005704}
-  BallTimeCycle: 2250
-  _timesFrame: e80300008813000070300000e803000010270000
-  Ball: {fileID: 535144240}
-  Ruler: {fileID: 421415988}
-  ArrowsPanel: {fileID: 1819092820}
-  MatrixQ_level0: {fileID: 2118382442}
-  MatrixQ_level1: {fileID: 551843056}
-  MatrixQ_level2: {fileID: 231164431}
-  MatrixA_level0: {fileID: 704607947}
-  MatrixA_level1: {fileID: 1422743594}
-  MatrixA_level2: {fileID: 1033065881}
-  Btn_OK: {fileID: 438364743}
-  BackgroundSound: {fileID: 971143950}
-  AudioPulses:
+  ballTimeCycle: 3000
+  timesFrame: e80300001027000010270000a00f000010270000
+  ball: {fileID: 535144240}
+  ruler: {fileID: 421415988}
+  arrowsPanel: {fileID: 1819092820}
+  matrixQLevel0: {fileID: 2118382442}
+  matrixQLevel1: {fileID: 551843056}
+  matrixQLevel2: {fileID: 231164431}
+  matrixALevel0: {fileID: 704607947}
+  matrixALevel1: {fileID: 1422743594}
+  matrixALevel2: {fileID: 1033065881}
+  btnOk: {fileID: 438364743}
+  backgroundSound: {fileID: 971143950}
+  audioPulses:
   - {fileID: 971143947}
   - {fileID: 971143946}
   - {fileID: 971143945}

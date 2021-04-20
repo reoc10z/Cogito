@@ -274,7 +274,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -160}
+  m_AnchoredPosition: {x: 0, y: -238}
   m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &537324147
@@ -298,7 +298,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 26
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -309,7 +309,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Vol\xFAmen"
+  m_Text: '> 0 <'
 --- !u!222 &537324148
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -433,7 +433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -80.00001}
+  m_AnchoredPosition: {x: 0, y: -158.00002}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &888849310
@@ -1221,7 +1221,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 45}
+  m_AnchoredPosition: {x: 0, y: -33.00003}
   m_SizeDelta: {x: 400, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1582185888
@@ -1497,7 +1497,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 220, y: -430}
+  m_AnchoredPosition: {x: 190, y: -376.67}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1682351763
@@ -1512,17 +1512,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76cd376dffa459b66898450a054aeab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BtnNext: {fileID: 1437785297}
-  BackgroundSound: {fileID: 1682351764}
-  BeepSound: {fileID: 1682351765}
+  btnNext: {fileID: 1437785297}
+  beepSound: {fileID: 1682351765}
   textVol: {fileID: 537324147}
-  TextInformation: {fileID: 1834155650}
-  BtnPlay: {fileID: 1642152055}
-  BtnDelayMore: {fileID: 1072663536}
-  BtnDelayBitMore: {fileID: 1582185890}
-  BtnDelayLess: {fileID: 193167258}
-  BtnDelayBitLess: {fileID: 1809349221}
-  BtnAutoCalibration: {fileID: 1485076959}
+  textInformation: {fileID: 1834155650}
+  btnPlay: {fileID: 1642152055}
+  btnDelayMore: {fileID: 1072663536}
+  btnDelayBitMore: {fileID: 1582185890}
+  btnDelayLess: {fileID: 193167258}
+  btnDelayBitLess: {fileID: 1809349221}
+  btnAutoCalibration: {fileID: 1485076959}
 --- !u!82 &1682351764
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2061,11 +2060,11 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "1- Desactiva tus datos y wifi para evitar distracciones.\n\n2- Debes usar
-    aud\xEDfonos durante todo el experimento.\n\n2- \xBFEst\xE1s escuchando el sonido
-    en este momento?\nSube el volumen de tu celular al valor m\xE1s fuerte posible
-    que no sea da\xF1ino para tus o\xEDdos.\n\n3- Durante todo el experimento, mant\xE9n
-    el mismo volumen que est\xE1s colocando."
+  m_Text: '1- Busca un espacio silencioso.
+
+
+    2- Desactiva tus datos y wifi para
+    evitar distracciones durante la prueba.'
 --- !u!222 &1834155651
 CanvasRenderer:
   m_ObjectHideFlags: 0

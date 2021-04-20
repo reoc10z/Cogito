@@ -1,22 +1,20 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEngine;
-//using UnityEngine.UIElements;
 using UnityEngine.UI;
 using System.Diagnostics;
 using System.IO;
+using UnityEngine.Serialization;
 
 public class CogitoController : MonoBehaviour
 {
 
     // general settings
-    public Text TxtInstructions_Ball;
-    public Text TxtInstructions_Pattern;
-    public GameObject ScreenMsg;
-    public GameObject[] HighlightsInstructions = new GameObject[2];
+    public Text txtInstructionsBall;
+    public Text txtInstructionsPattern;
+    public GameObject screenMsg;
+    public GameObject[] highlightsInstructions = new GameObject[2];
 
     private float _deltaMovement;
     private float _widthScreen;
@@ -32,34 +30,35 @@ public class CogitoController : MonoBehaviour
     private string _testVersion;
     private string _logs = "";
     private int _cyclesByLevel;
+    private string _screenMsgText;
 
     //Timers
-    public float BallTimeCycle = 3000.0f;
+    public float ballTimeCycle = 3000.0f;
     private float _ballTime;
     private float _matrixTime;
-    private readonly float _delayStimuliMs = 100; // 100 ms
+    private readonly float _delayStimuliMs = 90; // I am expecting 100 ms, but I will use 90ms if there is delay when running the code
     private long _timeSinceEndStimulus;
     private float _timeSinceAudioPlay;
     private float _timeSinceVibrationStarts;
-    public int[] _timesFrame = new int[] {1000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
+    public int[] timesFrame = new int[] {1000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
     private float _timerFrame;
     private float _timerBall;
     private Stopwatch _zeit = new Stopwatch();
     private long _deltaFramesTime;
 
     // ball
-    public GameObject Ball;
-    public GameObject Ruler;
-    private float _center_intialX;
-    private float _center_intialY;
+    public GameObject ball;
+    public GameObject ruler;
+    private float _centerIntialX;
+    private float _centerIntialY;
 
     private float _xCurrent;
 
     // ball postiion values in range [-6,6] excluding 0
-    private short[] _listBallPosition_levelTraining =
+    private readonly short[] _listBallPositionLevelTraining =
         {3, -3, 2, 3, -4, 1, -1, 2, -3, 4, 5, -6, 2, 3, -4, 1, -1, 2, -3, 4}; 
 
-    private short[] _listBallPosition_level0 = new short[]
+    private readonly short[] _listBallPositionLevel0 = new short[]
     {
         -6, -4, -2, -4, -2, -3,  1, -5, -1,  4, 2, -5, -4, -5,  4, -6, -4,
          5,  4, -4,  3, -1,  6,  1, -3, -2,  1, 4, -4,  1, -2, -1,  3,  5,
@@ -67,7 +66,7 @@ public class CogitoController : MonoBehaviour
          5, -5,  5, -5,  3, -4, -1,  3, -6
     };
 
-    private short[] _listBallPosition_level1 = new short[]
+    private readonly short[] _listBallPositionLevel1 = new short[]
     {
         -5,  1, -6,  6,  3, -5, -1, -3, -4, -1, -2, -5, -4, -2,  6, -5, -2,
         3,  1, -2, -5, -2,  6,  5,  2, -1,  3,  2, -3,  5, -4, -5,  1, -4,
@@ -77,7 +76,7 @@ public class CogitoController : MonoBehaviour
         6,  3,  6,  5, -3
     };
 
-    private short[] _listBallPosition_level2 = new short[]
+    private readonly short[] _listBallPositionLevel2 = new short[]
     {
         2,  1, -2, -1, -5,  1, -4,  3, -3, -6,  6,  1, -1, -6, -3,  3, -3,
         -5, -3,  1, -3,  4,  5,  2, -1, -3, -4,  4,  3, -5, -6,  2, -2,  2,
@@ -95,14 +94,14 @@ public class CogitoController : MonoBehaviour
     private int _ballDirection;
     private Vector3 _nextPosition;
     private bool _newPosition;
-    public GameObject ArrowsPanel;
+    public GameObject arrowsPanel;
     private bool _allowBallMovement;
 
     // question pattern: shown pattern to be learnt
     
-    public GameObject MatrixQ_level0; 
-    public GameObject MatrixQ_level1; 
-    public GameObject MatrixQ_level2; 
+    public GameObject matrixQLevel0; 
+    public GameObject matrixQLevel1; 
+    public GameObject matrixQLevel2; 
     private GameObject _matrixQuestion;
     private Image[] _listQuestionCells;
     private List<bool[]> _listQuestionPatterns = new List<bool[]>();
@@ -111,7 +110,7 @@ public class CogitoController : MonoBehaviour
     // patterns by level
     
     // pattern: training level
-    private readonly List<bool[]> _listQuestionPatterns_levelTraining = new List<bool[]>()
+    private readonly List<bool[]> _listQuestionPatternsLevelTraining = new List<bool[]>()
     {
         new bool[16] {false,false, true, true, false, false, true, true, true, true, true, true, true, true, true, true},
         new bool[16] {false, false, true, true, true, false, false, true, true, true, false, false, true, true, true, true },
@@ -119,7 +118,7 @@ public class CogitoController : MonoBehaviour
     };
 
     // pattern: level 0 or easy: 6 patterns (4x4 with 3 black cells)
-    private List<bool[]> _listQuestionPatterns_level0 = new List<bool[]>()
+    private readonly List<bool[]> _listQuestionPatternsLevel0 = new List<bool[]>()
     {
         new bool[16] { true,  true,  true,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true, },
         new bool[16] { true,  false,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, },
@@ -131,7 +130,7 @@ public class CogitoController : MonoBehaviour
     };
 
     // pattern: level 1 or middle: 6 patterns (5x5 with 6 black cells)
-    private List<bool[]> _listQuestionPatterns_level1 = new List<bool[]>()
+    private readonly List<bool[]> _listQuestionPatternsLevel1 = new List<bool[]>()
     {
         new bool[25] { true,  true,  false,  true,  true,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  false, },
         new bool[25] { true,  true,  true,  false,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true, },
@@ -145,7 +144,7 @@ public class CogitoController : MonoBehaviour
     };
 
     // pattern: level 2 or hard: 9 patterns (6x6 with 9 black cells)
-    private List<bool[]> _listQuestionPatterns_level2 = new List<bool[]>()
+    private readonly List<bool[]> _listQuestionPatternsLevel2 = new List<bool[]>()
     {
         new bool[36] { true,  true,  true,  true,  true,  true,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  true,  true,  false,  true,  true,  true,  false,  true,  false,  false,  true,  true, },
         new bool[36] { true,  false,  true,  true,  true,  true,  true,  true,  true,  false,  false,  true,  true,  true,  true,  false,  true,  false,  true,  true,  true,  true,  true,  false,  true,  true,  true,  false,  false,  true,  true,  true,  false,  true,  true,  true, },
@@ -160,26 +159,26 @@ public class CogitoController : MonoBehaviour
     };
 
     // answer pattern: pattern to mark answers
-    public GameObject MatrixA_level0;
-    public GameObject MatrixA_level1;
-    public GameObject MatrixA_level2;
+    public GameObject matrixALevel0;
+    public GameObject matrixALevel1;
+    public GameObject matrixALevel2;
     private GameObject _matrixAnswer;
     private Toggle[] _listAnswerCells;
 
     private bool[] _answerPattern;
     
-    public Button Btn_OK;
+    public Button btnOk;
     private bool _registerAnswer = false;
 
     //auditory
-    public AudioSource BackgroundSound;
-    public AudioSource[] AudioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
-    private readonly float _intrinsic_audioDelay = 50f; // ms
+    public AudioSource backgroundSound;
+    public AudioSource[] audioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
+    private readonly float _intrinsicAudioDelay = 50f; // ms
     private bool _isAudio;
     
     // haptic
     //vibration. Pattern has to be: off, on, off, on time
-    private int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
+    private int _vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
     private const int Vt = 50; // vibrationTime
     private List<long[]> _vibrationPatterns;
     private long[] _vibrationTimePatterns; // array that includes the time length for each item in _vibratioPatterns
@@ -205,16 +204,18 @@ public class CogitoController : MonoBehaviour
         _pathTestVersionFile = GetPathFile("SettingsTestVersion.txt");
         _pathSettingsHapticDelayFile = GetPathFile("SettingsHapticDelay.txt");
         
-        Vd = int.Parse( ReadFile(_pathSettingsHapticDelayFile) );
+        _vd = int.Parse( ReadFile(_pathSettingsHapticDelayFile) );
         _vibrationPatterns = new List<long[]>()
         {
-            new long[] {Vd, Vt}, // 1 pulse
-            new long[] {Vd, Vt, Vt, Vt}, // 2 pulses
-            new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
-            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 4 pulses
-            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 5 pulses
-            new long[] {Vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} // 6 pulses
+            new long[] {_vd, Vt}, // 1 pulse
+            new long[] {_vd, Vt, Vt, Vt}, // 2 pulses
+            new long[] {_vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
+            new long[] {_vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 4 pulses
+            new long[] {_vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt}, // 5 pulses
+            new long[] {_vd, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt, Vt} // 6 pulses
         };
+        
+        _screenMsgText = screenMsg.GetComponentsInChildren<Text>()[0].text;
     }
 
     // Start is called before the first frame update
@@ -255,12 +256,12 @@ public class CogitoController : MonoBehaviour
         // general settingss
         _playing = false; // when start method, the game has not started
         _ballDirection = 0;
-        ScreenMsg.SetActive(true); // activate welcome message
-        ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
+        screenMsg.SetActive(true); // activate welcome message
+        screenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
         
         // highlights for testing level 
-        HighlightsInstructions[0].SetActive(false);
-        HighlightsInstructions[1].SetActive(false);
+        highlightsInstructions[0].SetActive(false);
+        highlightsInstructions[1].SetActive(false);
 
         // question pattern
         _listQuestionCells = _matrixQuestion.GetComponentsInChildren<Image>().ToArray(); // list cells in pattern // MatrixQuestion.GetComponentsInChildren<Image>().Skip(1).ToArray(); // first element is the pattern (thus, skip!)
@@ -269,23 +270,23 @@ public class CogitoController : MonoBehaviour
         // answer pattern
         _listAnswerCells = _matrixAnswer.GetComponentsInChildren<Toggle>().ToArray();
         _matrixAnswer.SetActive(false);
-        Btn_OK.onClick.AddListener(BtnOKanswer);
-        Btn_OK.gameObject.SetActive(false);
+        btnOk.onClick.AddListener(BtnOKanswer);
+        btnOk.gameObject.SetActive(false);
         
         
         // ball
         // initial ball position
         _newPosition = false;
         _allowBallMovement = false;
-        _center_intialX = Ball.transform.position.x;
-        _center_intialY = Ball.transform.position.y;
+        _centerIntialX = ball.transform.position.x;
+        _centerIntialY = ball.transform.position.y;
         _deltaMovement = _widthScreen / 15;
-        Ruler.SetActive(false);
-        Ball.SetActive(false);
-        ArrowsPanel.SetActive(false);
+        ruler.SetActive(false);
+        ball.SetActive(false);
+        arrowsPanel.SetActive(false);
         
         // audio
-        AudioPulses = GetComponents<AudioSource>();
+        audioPulses = GetComponents<AudioSource>();
         // this variable will contain the duration of each vibration pattern in ms. It includes the delay value used to synchronise audio and haptics stimuli
         // it will be used to wait for the whole stimulus to later move the ball
         _vibrationTimePatterns = new long[_vibrationPatterns.Count];
@@ -302,7 +303,7 @@ public class CogitoController : MonoBehaviour
         
         //timers
         _timeSinceEndStimulus = 0; // stimuli timer
-        _zeit.Start(); // global timer 
+        _zeit.Start(); // global timer
     }
     
     void FixedUpdate()
@@ -330,10 +331,10 @@ public class CogitoController : MonoBehaviour
                 //After primmed stimuli end, we have to wait for 100 ms to change ball to a new position 
                 if (_newPosition && _allowBallMovement) 
                 {
-                    if (_zeit.ElapsedMilliseconds - _timeSinceEndStimulus > _delayStimuliMs - 1) // _delayStimuli is 100ms
+                    if (_zeit.ElapsedMilliseconds - _timeSinceEndStimulus > _delayStimuliMs - 1) // _delayStimuli is 90ms, with a possible system delay, I am expecting a total delay of 100ms
                     {
                         // Move ball to next predefined position by the game
-                        Ball.transform.position = _nextPosition;
+                        ball.transform.position = _nextPosition;
                         _ballPosition = _nextBallPosition;
                         ToLog("_10_ system ball position _ " + _ballPosition +"_NA");
                         _newPosition = false;
@@ -342,14 +343,14 @@ public class CogitoController : MonoBehaviour
             }
 
             // get current ball position: it could be changed by the user with the button arrows
-            _xCurrent = Ball.transform.position.x;
+            _xCurrent = ball.transform.position.x;
         
             // limit ball movement to screen size
-            if (_allowBallMovement && _xCurrent - _center_intialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
+            if (_allowBallMovement && _xCurrent - _centerIntialX > -(_widthScreen/2 - 2*_deltaMovement) && _ballDirection<0)
             {
                 // move left if user pressed button
                 MoveBall(_xCurrent, -1);
-            } else if (_allowBallMovement && _xCurrent - _center_intialX < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
+            } else if (_allowBallMovement && _xCurrent - _centerIntialX < (_widthScreen/2 - 2*_deltaMovement) && _ballDirection>0)
             {
                 // move right if user pressed button
                 MoveBall(_xCurrent, +1);
@@ -384,67 +385,67 @@ public class CogitoController : MonoBehaviour
         if (_level == -1)
         {
             // level TRAINING
-            BallTimeCycle = 5000.0f; // usually it is 3000.0f, but 5000.0 to warm up
-            _timesFrame = new int[] {2000, 10000, 15000, 4000, 15000}; // more time for warming up
+            ballTimeCycle = 5000.0f; // usually it is 3000.0f, but 5000.0 to warm up
+            timesFrame = new int[] {2000, 10000, 15000, 4000, 15000}; // more time for warming up
             // ball positions
-            _listBallPosition = _listBallPosition_levelTraining;
+            _listBallPosition = _listBallPositionLevelTraining;
             // question patterns
-            _listQuestionPatterns = _listQuestionPatterns_levelTraining;
-            _matrixQuestion = MatrixQ_level0;
-            MatrixQ_level1.SetActive(false);
-            MatrixQ_level2.SetActive(false);
+            _listQuestionPatterns = _listQuestionPatternsLevelTraining;
+            _matrixQuestion = matrixQLevel0;
+            matrixQLevel1.SetActive(false);
+            matrixQLevel2.SetActive(false);
             // answer patterns
             _answerPattern = new bool[16]
                 {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-            _matrixAnswer = MatrixA_level0;
-            MatrixA_level1.SetActive(false);
-            MatrixA_level2.SetActive(false);
+            _matrixAnswer = matrixALevel0;
+            matrixALevel1.SetActive(false);
+            matrixALevel2.SetActive(false);
         }
         else if (_level == 0)
         {
             // level BASIC
             // ball positions
-            _listBallPosition = _listBallPosition_level0;
+            _listBallPosition = _listBallPositionLevel0;
             // question patterns
-            _listQuestionPatterns = _listQuestionPatterns_level0;
-            _matrixQuestion = MatrixQ_level0;
-            MatrixQ_level1.SetActive(false);
-            MatrixQ_level2.SetActive(false);
+            _listQuestionPatterns = _listQuestionPatternsLevel0;
+            _matrixQuestion = matrixQLevel0;
+            matrixQLevel1.SetActive(false);
+            matrixQLevel2.SetActive(false);
             // answer patterns
             _answerPattern = new bool[16] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-            _matrixAnswer = MatrixA_level0;
-            MatrixA_level1.SetActive(false);
-            MatrixA_level2.SetActive(false);
+            _matrixAnswer = matrixALevel0;
+            matrixALevel1.SetActive(false);
+            matrixALevel2.SetActive(false);
 
         } else if (_level == 1)
         {
             // level MIDDLE
             // ball positions
-            _listBallPosition = _listBallPosition_level1;
+            _listBallPosition = _listBallPositionLevel1;
             // patterns
-            _listQuestionPatterns = _listQuestionPatterns_level1;
-            _matrixQuestion = MatrixQ_level1;
-            MatrixQ_level0.SetActive(false);
-            MatrixQ_level2.SetActive(false);
+            _listQuestionPatterns = _listQuestionPatternsLevel1;
+            _matrixQuestion = matrixQLevel1;
+            matrixQLevel0.SetActive(false);
+            matrixQLevel2.SetActive(false);
             _answerPattern = new bool[25] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-            _matrixAnswer = MatrixA_level1;
-            MatrixA_level0.SetActive(false);
-            MatrixA_level2.SetActive(false);
+            _matrixAnswer = matrixALevel1;
+            matrixALevel0.SetActive(false);
+            matrixALevel2.SetActive(false);
             
         } else if (_level == 2)
         {
             // level HEAVY
             // ball positions
-            _listBallPosition = _listBallPosition_level2;
+            _listBallPosition = _listBallPositionLevel2;
             // patterns
-            _listQuestionPatterns = _listQuestionPatterns_level2;
-            _matrixQuestion = MatrixQ_level2;
-            MatrixQ_level0.SetActive(false);
-            MatrixQ_level1.SetActive(false);
+            _listQuestionPatterns = _listQuestionPatternsLevel2;
+            _matrixQuestion = matrixQLevel2;
+            matrixQLevel0.SetActive(false);
+            matrixQLevel1.SetActive(false);
             _answerPattern = new bool[36] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-            _matrixAnswer = MatrixA_level2;
-            MatrixA_level0.SetActive(false);
-            MatrixA_level1.SetActive(false);
+            _matrixAnswer = matrixALevel2;
+            matrixALevel0.SetActive(false);
+            matrixALevel1.SetActive(false);
             
         }
         
@@ -456,172 +457,176 @@ public class CogitoController : MonoBehaviour
 
     private void SelectStage(long deltaTime)
     {
-        if (_nStage == 0) 
+        switch (_nStage)
         {
-            // stage 0 shows a message to prepare user for next game
-            // after click Start, game will wait for 2 seconds to start
-            if (_timerFrame > 0)
-            {
-                _timerFrame -= deltaTime;
-            }
-            else
-            {
-                // deactivate welcome message
-                ScreenMsg.SetActive(false);
-                // go to next stage: 1
-                if (_level == -1)
+            case 0:
+                // stage 0 shows a message to prepare user for next game
+                // after click Start, game will wait for 2 seconds to start
+                if (_timerFrame > 0)
                 {
-                    //highlight some elements if level is testing
-                    HighlightsInstructions[0].SetActive(true);
-                    HighlightsInstructions[1].SetActive(false);
+                    _timerFrame -= deltaTime;
                 }
-                _nStage = 1;
-                _timerFrame = _timesFrame[_nStage];
-                _timerBall = BallTimeCycle; // 3 seconds
-                UpdateInstructions();
-                BallController(true);
-            }
-        } else if (_nStage == 1) 
-        {
-            // stage 1 shows only the ball
-            // ball
-            if (_timerBall > 0)
-            {
-                _timerBall -= deltaTime;
-            }
-            else
-            {
-                // move ball
-                BallController(true);
-                // reset ball timer
-                _timerBall = BallTimeCycle; // 3.0f
-            }
-                
-            // next-frame timer
-            if (_timerFrame > 0)
-            {
-                _timerFrame -= deltaTime;
-            }
-            else
-            {
-                // go to next stage
-                if (_level == -1)
+                else
                 {
-                    //highlight some elements if level is testing
-                    HighlightsInstructions[0].SetActive(true);
-                    HighlightsInstructions[1].SetActive(true);
+                    // deactivate welcome message
+                    screenMsg.SetActive(false);
+                    // go to next stage: 1
+                    if (_level == -1)
+                    {
+                        //highlight some elements if level is testing
+                        highlightsInstructions[0].SetActive(true);
+                        highlightsInstructions[1].SetActive(false);
+                    }
+                    _nStage = 1;
+                    _timerFrame = timesFrame[_nStage];
+                    _timerBall = ballTimeCycle; // 3 seconds
+                    UpdateInstructions();
+                    BallController(true);
                 }
-                _nStage = 2;
-                _timerFrame = _timesFrame[_nStage];
-                UpdateInstructions();
-                MatrixQuestionController(true);
-            }
+                break;
+            
+            case 1:
+                // stage 1 shows only the ball
+                // ball
+                if (_timerBall > 0)
+                {
+                    _timerBall -= deltaTime;
+                }
+                else
+                {
+                    // move ball
+                    BallController(true);
+                    // reset ball timer
+                    _timerBall = ballTimeCycle; // 3.0f
+                }
                 
-        } else if (_nStage == 2) 
-        {
-            // stage 2 shows the ball and the pattern to be recalled
-            // ball
-            if (_timerBall > 0)
-            {
-                _timerBall -= deltaTime;
-            }
-            else
-            {
-                // move ball
-                BallController(true);
-                // reset ball timer
-                _timerBall = BallTimeCycle; // 3.0f
-            }
+                // next-frame timer
+                if (_timerFrame > 0)
+                {
+                    _timerFrame -= deltaTime;
+                }
+                else
+                {
+                    // go to next stage
+                    if (_level == -1)
+                    {
+                        //highlight some elements if level is testing
+                        highlightsInstructions[0].SetActive(true);
+                        highlightsInstructions[1].SetActive(true);
+                    }
+                    _nStage = 2;
+                    _timerFrame = timesFrame[_nStage];
+                    UpdateInstructions();
+                    MatrixQuestionController(true);
+                }
+                break;
+            
+            case 2:
+                // stage 2 shows the ball and the pattern to be recalled
+                // ball
+                if (_timerBall > 0)
+                {
+                    _timerBall -= deltaTime;
+                }
+                else
+                {
+                    // move ball
+                    BallController(true);
+                    // reset ball timer
+                    _timerBall = ballTimeCycle; // 3.0f
+                }
 
-            // next-frame timer
-            if (_timerFrame > 0)
-            {
-                _timerFrame -= deltaTime;
-            }
-            else
-            {
-                // go to next stage: 3
-                if (_level == -1)
+                // next-frame timer
+                if (_timerFrame > 0)
                 {
-                    //highlight some elements if level is testing
-                    HighlightsInstructions[0].SetActive(true);
-                    HighlightsInstructions[1].SetActive(false);
+                    _timerFrame -= deltaTime;
                 }
-                _nStage = 3;
-                _timerFrame = _timesFrame[_nStage];
-                UpdateInstructions();
-                MatrixQuestionController(false);
-            }
+                else
+                {
+                    // go to next stage: 3
+                    if (_level == -1)
+                    {
+                        //highlight some elements if level is testing
+                        highlightsInstructions[0].SetActive(true);
+                        highlightsInstructions[1].SetActive(false);
+                    }
+                    _nStage = 3;
+                    _timerFrame = timesFrame[_nStage];
+                    UpdateInstructions();
+                    MatrixQuestionController(false);
+                }
+                break;
+            
+            case 3:
+                // stage 3 shows only the ball
+                // ball
+                if (_timerBall > 0)
+                {
+                    _timerBall -= deltaTime;
+                }
+                else
+                {
+                    // move ball
+                    BallController(true);
+                    // reset ball timer
+                    _timerBall = ballTimeCycle; // 3.0f
+                }
                 
-        } else if (_nStage == 3) 
-        {
-            // stage 3 shows only the ball
-            // ball
-            if (_timerBall > 0)
-            {
-                _timerBall -= deltaTime;
-            }
-            else
-            {
-                // move ball
-                BallController(true);
-                // reset ball timer
-                _timerBall = BallTimeCycle; // 3.0f
-            }
-                
-            // next-frame timer
-            if (_timerFrame > 0)
-            {
-                _timerFrame -= deltaTime;
-            }
-            else
-            {
-                // go to next stage: 4
-                if (_level == -1)
+                // next-frame timer
+                if (_timerFrame > 0)
                 {
-                    //highlight some elements if level is testing
-                    HighlightsInstructions[0].SetActive(false);
-                    HighlightsInstructions[1].SetActive(true);
+                    _timerFrame -= deltaTime;
                 }
-                _nStage = 4;
-                _timerFrame = _timesFrame[_nStage];
-                UpdateInstructions();
-                BallController(false);
-                MatrixAnswerController(true);
-            } 
-        } else if (_nStage == 4)
-        {
-            // stage 4 shows a matrix where the user has to recall the pattern
-            // next-frame timer
-            if (_timerFrame > 0)
-            {
-                _timerFrame -= deltaTime;
-            }
-            else 
-            {
-                // go to next stage: 0
-                if (_level == -1)
+                else
                 {
-                    //highlight some elements if level is testing
-                    HighlightsInstructions[0].SetActive(false);
-                    HighlightsInstructions[1].SetActive(false);
-                }
-                MatrixAnswerController(false);
-                ScreenMsg.SetActive(true); // activate welcome message
-                ScreenMsg.GetComponentsInChildren<Text>()[0].text = "¡Vamos,\nconcéntrate!";
-                Ruler.SetActive(true);
-                Ball.SetActive(true);
-                ArrowsPanel.SetActive(true);
-                _nStage = 0;
-                _timerFrame = _timesFrame[_nStage];
-                UpdateInstructions();
-                _cyclesByLevel -= 1;
-                if (_cyclesByLevel == 0)
+                    // go to next stage: 4
+                    if (_level == -1)
+                    {
+                        //highlight some elements if level is testing
+                        highlightsInstructions[0].SetActive(false);
+                        highlightsInstructions[1].SetActive(true);
+                    }
+                    _nStage = 4;
+                    _timerFrame = timesFrame[_nStage];
+                    UpdateInstructions();
+                    BallController(false);
+                    MatrixAnswerController(true);
+                } 
+                break;
+            
+            case 4:
+                // stage 4 shows a matrix where the user has to recall the pattern
+                // next-frame timer
+                if (_timerFrame > 0)
                 {
-                    GoToNextScene();
+                    _timerFrame -= deltaTime;
                 }
-            }
-        } 
+                else 
+                {
+                    // go to next stage: 0
+                    if (_level == -1)
+                    {
+                        //highlight some elements if level is testing
+                        highlightsInstructions[0].SetActive(false);
+                        highlightsInstructions[1].SetActive(false);
+                    }
+                    MatrixAnswerController(false);
+                    screenMsg.SetActive(true); // activate welcome message
+                    _screenMsgText = "¡Vamos,\nconcéntrate!";
+                    ruler.SetActive(true);
+                    ball.SetActive(true);
+                    arrowsPanel.SetActive(true);
+                    _nStage = 0;
+                    _timerFrame = timesFrame[_nStage];
+                    UpdateInstructions();
+                    _cyclesByLevel -= 1;
+                    if (_cyclesByLevel == 0)
+                    {
+                        GoToNextScene();
+                    }
+                }
+                break;
+        }
     }
 
     // CheckIfStimuliEnded: it checks if primmed stimuli have ended and returns a boolean
@@ -629,6 +634,7 @@ public class CogitoController : MonoBehaviour
     {
         if(_isVibration)
         {
+            // for haptic and for haptic-auditory
             if (_zeit.ElapsedMilliseconds - _timeSinceVibrationStarts > _vibrationTimePatterns[_idxStimuli])
             {
                 // when vibration ends
@@ -671,28 +677,28 @@ public class CogitoController : MonoBehaviour
     {
         if (_nStage == 0)
         {
-            TxtInstructions_Ball.text = "";
-            TxtInstructions_Pattern.text = "";
+            txtInstructionsBall.text = "";
+            txtInstructionsPattern.text = "";
         } 
         else if (_nStage == 1)
         {
-            TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
+            txtInstructionsBall.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
             //TxtInstructions_Pattern.text = "";
         } 
         else if (_nStage == 2)
         {
             //TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
-            TxtInstructions_Pattern.text = "Memoriza el patrón";
+            txtInstructionsPattern.text = "Memoriza el patrón";
         } 
         else if (_nStage == 3)
         {
             //TxtInstructions_Ball.text = "Cada vez que la pelota se mueva, llévala al centro de la regla lo más rápido que puedas";
-            TxtInstructions_Pattern.text = "";
+            txtInstructionsPattern.text = "";
         } 
         else if (_nStage == 4)
         {
-            TxtInstructions_Ball.text = "";
-            TxtInstructions_Pattern.text = "Marca el patrón que memorizaste y pulsa OK. Tienes máx. 10 seg.";
+            txtInstructionsBall.text = "";
+            txtInstructionsPattern.text = "Marca el patrón que memorizaste y pulsa OK. Tienes máx. 10 seg.";
         }
     }
     
@@ -717,21 +723,21 @@ public class CogitoController : MonoBehaviour
     {
         if (on)
         {
-            Ball.SetActive(true);
-            Ruler.SetActive(true);
-            ArrowsPanel.SetActive(true);
+            ball.SetActive(true);
+            ruler.SetActive(true);
+            arrowsPanel.SetActive(true);
             NextBallPosition();
             _allowBallMovement = true;
         }
         else
         {
             _allowBallMovement = false;
-            Ball.transform.position = new Vector3(_center_intialX, _center_intialY, 0);
+            ball.transform.position = new Vector3(_centerIntialX, _centerIntialY, 0);
             _ballPosition = 0;
             ToLog("_10_ system ball position _ " + _ballPosition +"_NA");
-            Ball.SetActive(false);
-            Ruler.SetActive(false);
-            ArrowsPanel.SetActive(false);
+            ball.SetActive(false);
+            ruler.SetActive(false);
+            arrowsPanel.SetActive(false);
         }
     }
 
@@ -743,10 +749,10 @@ public class CogitoController : MonoBehaviour
         _isVibration = true;
     }
 
-    private void PlaySound(AudioSource _audio)
+    private void PlaySound(AudioSource audio)
     {
         _timeSinceAudioPlay = _zeit.ElapsedMilliseconds;
-        _audio.Play(0);
+        audio.Play(0);
         ToLog("_12_ sound starts _ "+ (_idxStimuli + 1) +"_NA" , _timeSinceAudioPlay );
         _isAudio = true;
     }
@@ -763,7 +769,7 @@ public class CogitoController : MonoBehaviour
                 if (_toPlaySound)
                 {
                     //auditory stimulus
-                    PlaySound(AudioPulses[_idxStimuli]);
+                    PlaySound(audioPulses[_idxStimuli]);
                 }
 
                 if (_toVibrate)
@@ -776,7 +782,7 @@ public class CogitoController : MonoBehaviour
         }
         
         // we enlist the new ball position but we have to wait stimuli time + 100ms to move the ball 
-        _nextPosition = new Vector3(_center_intialX + _nextBallPosition* _deltaMovement, _center_intialY, 0);
+        _nextPosition = new Vector3(_centerIntialX + _nextBallPosition* _deltaMovement, _centerIntialY, 0);
         _newPosition = true;
         
         // point to next position
@@ -789,13 +795,13 @@ public class CogitoController : MonoBehaviour
         if (typeMovement > 0)
         {
             // right
-            Ball.transform.position = new Vector3(xCurrent+_deltaMovement, _center_intialY, 0);
+            ball.transform.position = new Vector3(xCurrent+_deltaMovement, _centerIntialY, 0);
             _ballPosition += 1;
             ToLog("_11_ user ball position _ "+_ballPosition +"_NA");
         } else if (typeMovement < 0)
         {
             // left
-            Ball.transform.position = new Vector3(xCurrent-_deltaMovement, _center_intialY, 0);
+            ball.transform.position = new Vector3(xCurrent-_deltaMovement, _centerIntialY, 0);
             _ballPosition -= 1; 
             ToLog("_11_ user ball position _ "+_ballPosition +"_NA");
         }
@@ -828,8 +834,8 @@ public class CogitoController : MonoBehaviour
         {
             _registerAnswer = true;
             _matrixAnswer.SetActive(true);
-            Btn_OK.gameObject.SetActive(true);
-            Btn_OK.interactable = true;
+            btnOk.gameObject.SetActive(true);
+            btnOk.interactable = true;
             ToLog("_21_ answer pattern starts" +"_NA" +"_NA");
         }
         else
@@ -840,7 +846,7 @@ public class CogitoController : MonoBehaviour
                   String.Join(",", new List<bool>(_answerPattern).ConvertAll(i => i.ToString()).ToArray())
             );
             _matrixAnswer.SetActive(false);
-            Btn_OK.gameObject.SetActive(false);
+            btnOk.gameObject.SetActive(false);
             // reset cells to true (white). when changing the value of each cell, the attached-to-button function BtnOKanswer() modifies the array _answerPattern
             foreach (Toggle cell in _listAnswerCells)
             {
@@ -874,13 +880,13 @@ public class CogitoController : MonoBehaviour
 
     private void StartGame()
     {
-        BackgroundSound.Play();
+        backgroundSound.Play();
         _nStage = 0;
-        _timerFrame = _timesFrame[_nStage];
+        _timerFrame = timesFrame[_nStage];
         _playing = !_playing;
-        Ruler.SetActive(true);
-        Ball.SetActive(true);
-        ArrowsPanel.SetActive(true);
+        ruler.SetActive(true);
+        ball.SetActive(true);
+        arrowsPanel.SetActive(true);
         _deltaFramesTime = _zeit.ElapsedMilliseconds;
         ToLog("_1_ level starts _ " + _level +"_NA");
     }
@@ -888,10 +894,10 @@ public class CogitoController : MonoBehaviour
     private void BtnOKanswer()
     {
         ToLog("_23_ answer pattern ends by user ok button" +"_NA" +"_NA");
-        Btn_OK.interactable = false;
+        btnOk.interactable = false;
         _matrixAnswer.SetActive(false);
-        ScreenMsg.SetActive(true);
-        ScreenMsg.GetComponentsInChildren<Text>()[0].text = "Espera...";
+        screenMsg.SetActive(true);
+        _screenMsgText = "Espera...";
         _timerFrame = 500.0f; // reduce time to go to next scene to 500ms
     }
 
@@ -906,7 +912,7 @@ public class CogitoController : MonoBehaviour
 
     private void GoToNextScene()
     {
-        BackgroundSound.Stop();
+        backgroundSound.Stop();
         ToLog("_2_ level ends _ " + _level +"_NA");
         WriteLog();
         Loader.Load(Loader.Scene.QuestionnaireScene);

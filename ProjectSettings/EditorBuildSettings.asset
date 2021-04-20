@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/CalibrationScene.unity
     guid: 396b9b3ff1e7c175bb84ea8f077eed88
   - enabled: 1
+    path: Assets/Scenes/CalibrationScene2.unity
+    guid: c37739037fab666689b3da7137cc891a
+  - enabled: 1
     path: Assets/Scenes/PlayerDataScene.unity
     guid: 582de58652ff1ad78b9cefd51b46b3cb
   - enabled: 1

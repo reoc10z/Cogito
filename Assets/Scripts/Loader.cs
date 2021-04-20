@@ -9,6 +9,7 @@ public static class Loader
     {
         MenuScene,
         CalibrationScene,
+        CalibrationScene2,
         PlayerDataScene,
         GameScene,
         QuestionnaireScene,
