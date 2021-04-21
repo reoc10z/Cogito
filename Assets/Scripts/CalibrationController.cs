@@ -16,11 +16,6 @@ public class CalibrationController : MonoBehaviour
     public AudioSource beepSound;
     public Text textVol;
     public Text textInformation;
-    public Button btnPlay;
-    public Button btnDelayMore;
-    public Button btnDelayBitMore;
-    public Button btnDelayLess;
-    public Button btnDelayBitLess;
     public Button btnAutoCalibration;
     
     private GameObject dialog = null;
@@ -51,11 +46,6 @@ public class CalibrationController : MonoBehaviour
     private void Awake()
     {
         textVol.gameObject.SetActive(false);
-        btnPlay.gameObject.SetActive(false);
-        btnDelayMore.gameObject.SetActive(false);
-        btnDelayBitMore.gameObject.SetActive(false);
-        btnDelayLess.gameObject.SetActive(false);
-        btnDelayBitLess.gameObject.SetActive(false);
         btnAutoCalibration.gameObject.SetActive(false);
     }
 
@@ -67,11 +57,6 @@ public class CalibrationController : MonoBehaviour
         
         _pathSettingsHapticDelayFile = GetPathFile("SettingsHapticDelay.txt");
         btnAutoCalibration.onClick.AddListener(AutoCalibration);
-        btnPlay.onClick.AddListener(ApplyStimuli);
-        btnDelayMore.onClick.AddListener(IncreaseHapticDelay);
-        btnDelayBitMore.onClick.AddListener(IncreaseBitHapticDelay);
-        btnDelayLess.onClick.AddListener(DecreaseHapticDelay);
-        btnDelayBitLess.onClick.AddListener(DecreaseBitHapticDelay);
         btnNext.onClick.AddListener(ClickOnNext);
         
         _dataAudioOriginal = new float[beepSound.clip.samples];
@@ -154,32 +139,6 @@ public class CalibrationController : MonoBehaviour
 #endif
     }
     
-    private void IncreaseHapticDelay()
-    {
-        _hapticDelay += 50;
-        ApplyStimuli();
-    }
-    private void IncreaseBitHapticDelay()
-    {
-        _hapticDelay += 5;
-        ApplyStimuli();
-    }
-
-    private void DecreaseHapticDelay()
-    {
-        _hapticDelay -= 50;
-        if (_hapticDelay < 0)
-            _hapticDelay = 0;
-        ApplyStimuli();
-    }
-    private void DecreaseBitHapticDelay()
-    {
-        _hapticDelay -= 5;
-        if (_hapticDelay < 0)
-            _hapticDelay = 0;
-        ApplyStimuli();
-    }
-
     private void ShowDelayValue(string delay)
     {
         if(_toggleMsg)
@@ -195,11 +154,6 @@ public class CalibrationController : MonoBehaviour
     private void ActivatedButtons(bool active)
     {
         btnNext.interactable = active;
-        btnPlay.interactable = active;
-        btnDelayMore.interactable = active ;
-        btnDelayBitMore.interactable = active ;
-        btnDelayLess.interactable = active ;
-        btnDelayBitLess.interactable = active ;
         btnAutoCalibration.interactable = active ;
     }
     
@@ -266,18 +220,7 @@ public class CalibrationController : MonoBehaviour
         //Debug.Log(z);
         return z;
     }
-    
-    private void ApplyStimuli()
-    {
-        // update msg
-        ShowDelayValue( _hapticDelay.ToString() );
-        
-        // play sound
-        _deltaFramesTime = _zeit.ElapsedMilliseconds;
-        beepSound.Play(); 
-        _playingStimuli = true;
-    }
-    
+
     private void ClickOnNext()
     {
         switch (_stage)
@@ -287,11 +230,6 @@ public class CalibrationController : MonoBehaviour
                                        "\n\n4- Oprime Autocalibración, y en silencio espera 30 segundos." +
                                        "\n\n5- Ve a la siguiente sección";
                 textVol.gameObject.SetActive(true);
-                btnPlay.gameObject.SetActive(true);
-                btnDelayMore.gameObject.SetActive(true);
-                btnDelayBitMore.gameObject.SetActive(true);
-                btnDelayLess.gameObject.SetActive(true);
-                btnDelayBitLess.gameObject.SetActive(true);
                 btnAutoCalibration.gameObject.SetActive(true);
                 _stage =1;
                 break;
