@@ -33,14 +33,14 @@ public class CogitoController : MonoBehaviour
     private string _screenMsgText;
 
     //Timers
-    public float ballTimeCycle = 3000.0f;
+    public float ballTimeCycle = 2250.0f;
     private float _ballTime;
     private float _matrixTime;
     private readonly float _delayStimuliMs = 90; // I am expecting 100 ms, but I will use 90ms if there is delay when running the code
     private long _timeSinceEndStimulus;
     private float _timeSinceAudioPlay;
     private float _timeSinceVibrationStarts;
-    public int[] timesFrame = new int[] {1000, 10000, 10000, 4000, 10000}; // in ms: stage0, stage1, stage2, ...
+    public int[] timesFrame = new int[] {1000, 5000, 12400, 1000, 10000}; // in ms: stage0, stage1, stage2, ...
     private float _timerFrame;
     private float _timerBall;
     private Stopwatch _zeit = new Stopwatch();
