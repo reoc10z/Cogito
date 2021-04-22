@@ -106,7 +106,7 @@ public class CalibrationController : MonoBehaviour
                     beepSound.Play();
                     _ready2Record = false;
                     _deltaFramesTime = _zeit.ElapsedMilliseconds; //timestamp
-                    ShowDelayValue(""+ (_nCalibrationRecs-_kRecord));
+                    ShowDelayValue("...calculando...");
                 }
                 else
                 {

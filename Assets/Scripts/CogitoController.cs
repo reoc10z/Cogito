@@ -173,7 +173,6 @@ public class CogitoController : MonoBehaviour
     //auditory
     public AudioSource backgroundSound;
     public AudioSource[] audioPulses = new AudioSource[6]; // up to 6 audio files for up to 6 pulses
-    private readonly float _intrinsicAudioDelay = 50f; // ms
     private bool _isAudio;
     
     // haptic
@@ -246,10 +245,6 @@ public class CogitoController : MonoBehaviour
         else
             _toPlaySound = false;
 
-        print(_testVersion);
-        print(_toPlaySound);
-        print(_toVibrate);
-        
         // initiate variables for the next level. For example question and answer patterns
         NextLevel();
         

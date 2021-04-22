@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,26 +9,34 @@ using System.Runtime.CompilerServices;
 public class MenuController : MonoBehaviour
 {
     // general variables
-    public Button BtnTraining;
-    public Button BtnStartTest;
-    public Button BtnShareLog;
+    public Button btnCalibration;
+    public Button btnTraining;
+    public Button btnStartTest;
+    public Button btnShareLog;
+    public Button btnExit;
+    public Text[] txtSteps = new Text[5];
     private string _pathLogFile;
     private string _pathSettingsHapticDelayFile;
-    public Button BtnExit;
     private string _logs = "";
 #if UNITY_ANDROID
     private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
 #endif
     void Awake()
     {
-        BtnTraining.onClick.AddListener(GoToTraining);
-        BtnStartTest.onClick.AddListener(GoToGame);
-        BtnShareLog.onClick.AddListener(GoToShare);
-        BtnExit.onClick.AddListener(ExitGame);
+        btnCalibration.onClick.AddListener(GoToCalibration);
+        btnTraining.onClick.AddListener(GoToTraining);
+        btnStartTest.onClick.AddListener(GoToGame);
+        btnShareLog.onClick.AddListener(GoToShare);
+        btnExit.onClick.AddListener(ExitGame);
+        ActivateButton(1);
     }
     // Start is called before the first frame update
     void Start()
     {
+        // steps file
+        var step =  ReadFile( CreateFile("SettingsStep.txt") );
+        ActivateButton( int.Parse(step) );
+        
         //log file
         _pathLogFile  = CreateFile("Log.txt");
         
@@ -102,6 +111,13 @@ public class MenuController : MonoBehaviour
         return filePath;
     }
 
+
+    private void GoToCalibration()
+    {
+        Loader.Load(Loader.Scene.CalibrationScene);
+    }
+    
+    
     private void GoToTraining()
     {
         // setting file for level. Set level to -1
@@ -114,14 +130,18 @@ public class MenuController : MonoBehaviour
         //WriteFile( CreateFile("SettingsTestVersion.txt") , "Auditory", "r"); // todo: remove this line
         //WriteFile( CreateFile("SettingsTestVersion.txt") , "Haptic", "r"); // todo: remove this line
         
-        ToLog("_0_ testing starts_NA_NA");
+        ToLog("_0_ practice starts_NA_NA");
         WriteLog();
-        Loader.Load(Loader.Scene.CalibrationScene);
+
+        Loader.Load(Loader.Scene.GameScene);
     }
     
     private void GoToGame()
     {
-#if UNITY_ANDROID
+        ToLog("_0_ test starts_NA_NA");
+        WriteLog();
+        
+#if !UNITY_EDITOR
         // get volume intensity
         float vol = 100.0f * sound.GetSystemVolume();
         ToLog("_0_ volume (%) _ " + vol.ToString("0.00")+"_NA" );
@@ -149,20 +169,54 @@ public class MenuController : MonoBehaviour
 
     private void GoToShare()
     {
-        //ToLog("_0_ testing starts");
-        //WriteLog();
-        
         Loader.Load(Loader.Scene.SharingScene);
     }
     
     private void ExitGame()
     {
         WriteLog();
+        WriteFile( CreateFile("SettingsStep.txt"), "", "r");   
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+    }
+
+    private void ActivateButton(int idButton)
+    {
+        switch (idButton)
+        {
+            case 1:
+                btnCalibration.interactable = true;
+                btnTraining.interactable = false;
+                btnStartTest.interactable = false;
+                break;
+            
+            case 2:
+                btnCalibration.interactable = false;
+                btnTraining.interactable = true;
+                btnStartTest.interactable = false;
+                break;
+            
+            case 3:
+                btnCalibration.interactable = false;
+                btnTraining.interactable = false;
+                btnStartTest.interactable = true;
+                break;
+            
+            case 4:
+            case 5:
+                btnCalibration.interactable = false;
+                btnTraining.interactable = false;
+                btnStartTest.interactable = false;
+                break;
+        }
+
+        // activate indicator for next step
+        foreach (var txt in txtSteps)
+            txt.gameObject.SetActive(false);
+        txtSteps[idButton-1].gameObject.SetActive(true);
     }
     
 }

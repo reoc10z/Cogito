@@ -66,7 +66,29 @@ public class NativeShareScript : MonoBehaviour
     
     private void GoToMenu()
     {
+        WriteFile( CreateFile("SettingsStep.txt"), "5", "r");   
         Loader.Load(Loader.Scene.MenuScene);
+    }
+    
+    private void WriteFile(string filePath, string msg, string type)
+    {
+        if (type == "a")
+            File.AppendAllText(filePath, msg);
+        else if (type=="r")
+            File.WriteAllText(filePath, msg);
+    }
+    
+    // if file already exists, it returns that path.
+    private string CreateFile(string fileName)
+    {
+        string filePath = GetPathFile(fileName);
+        
+        if (!File.Exists(filePath)) {
+            //Create File if it doesn't exist
+            File.WriteAllText(filePath, "");
+        }
+        
+        return filePath;
     }
     
 }
