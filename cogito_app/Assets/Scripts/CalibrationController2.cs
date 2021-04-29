@@ -7,6 +7,7 @@ public class CalibrationController2 : MonoBehaviour
     public Button btnNext;
     public AudioSource backgroundSound;
     public Text textVol;
+    public Text textWarning;
 
 #if UNITY_ANDROID
     private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
@@ -18,6 +19,7 @@ public class CalibrationController2 : MonoBehaviour
         // keep screen always active
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         btnNext.onClick.AddListener(ClickOnNext);
+        btnNext.interactable = false;
     }
     
         
@@ -26,6 +28,20 @@ public class CalibrationController2 : MonoBehaviour
 #if UNITY_ANDROID
         float vol = 100.0f * sound.GetSystemVolume();
         textVol.text = "Volúmen: " + vol.ToString("0.00") + " %";
+        
+        // test if headset is plugged
+        // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
+        bool isHeadset = DetectHeadset.Detect();
+        if (isHeadset)
+        {
+            btnNext.interactable = true;
+            textWarning.text = "";
+        }
+        else
+        {
+            btnNext.interactable = false;
+            textWarning.text = "Ahora, mantén conectados tus audífonos de cable";
+        }
 #endif
     }
     

@@ -17,6 +17,11 @@ public class CalibrationController : MonoBehaviour
     public Text textVol;
     public Text textInformation;
     public Button btnAutoCalibration;
+    public Text textWarning;
+    
+#if UNITY_ANDROID
+    private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
+#endif
     
     private GameObject dialog = null;
     private int _hapticDelay = 0;
@@ -38,6 +43,7 @@ public class CalibrationController : MonoBehaviour
     {
         textVol.gameObject.SetActive(false);
         btnAutoCalibration.gameObject.SetActive(false);
+        textWarning.gameObject.SetActive(false);
     }
 
     // Start is called before the first frame update
@@ -115,6 +121,32 @@ public class CalibrationController : MonoBehaviour
             ActivatedButtons(true);
             _calibratingStep = -1;
         }
+        else
+        {
+            // test if headset is plugged
+            // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
+            bool isHeadset = DetectHeadset.Detect();
+            if (isHeadset)
+            {
+                textWarning.text = "¡Desconecta tus audífonos!";
+
+            }
+            else
+            {
+                float vol = 100.0f;
+#if UNITY_ANDROID
+                vol = 100.0f * sound.GetSystemVolume();
+#endif
+                if (vol < 90)
+                {
+                    textWarning.text = "Sube al máximo tu volúmen";
+                }
+                else
+                {
+                    textWarning.text = "";
+                }
+            }
+        }
 #endif
     }
     
@@ -138,14 +170,27 @@ public class CalibrationController : MonoBehaviour
     
     private void AutoCalibration()
     {
-        // block buttons
-        ActivatedButtons(false);
+        // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
+        bool isHeadset = DetectHeadset.Detect();
+        if (!isHeadset)
+        {
+            float vol = 100.0f;
+#if UNITY_ANDROID
+            vol = 100.0f * sound.GetSystemVolume();
+#endif
+            if (vol > 90)
+            {
+                // do autocalibration just if loudspeakers is higher than 90%
+                // block buttons
+                ActivatedButtons(false);
         
-        // update txt msg
-        _hapticDelayTemp = 0;
-        _kRecord = 0;
-        _ready2Record = true;
-        _calibratingStep = 1;
+                // update txt msg
+                _hapticDelayTemp = 0;
+                _kRecord = 0;
+                _ready2Record = true;
+                _calibratingStep = 1;
+            }
+        }
     }
     
     // delays means how much time the second array has to be shifted. However, due to our game logic, we need to 
@@ -209,6 +254,7 @@ public class CalibrationController : MonoBehaviour
                                        "\n\n4- Oprime Autocalibración, y en silencio espera 30 segundos." +
                                        "\n\n5- Ve a la siguiente sección";
                 textVol.gameObject.SetActive(true);
+                textWarning.gameObject.SetActive(true);
                 btnAutoCalibration.gameObject.SetActive(true);
                 btnNext.interactable = false;
                 _stage =1;

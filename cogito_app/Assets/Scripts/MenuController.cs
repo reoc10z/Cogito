@@ -35,6 +35,7 @@ public class MenuController : MonoBehaviour
     {
         // steps file
         var step =  ReadFile( CreateFile("SettingsStep.txt") );
+        // step will be string empty when app has never been opened
         if (step == "")
             step = "1";
         ActivateButton( int.Parse(step) );
