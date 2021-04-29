@@ -35,6 +35,8 @@ public class MenuController : MonoBehaviour
     {
         // steps file
         var step =  ReadFile( CreateFile("SettingsStep.txt") );
+        if (step == "")
+            step = "1";
         ActivateButton( int.Parse(step) );
         
         //log file
@@ -46,6 +48,7 @@ public class MenuController : MonoBehaviour
 
         // initial logs
         ToLog("_0_ app starts _ " + System.DateTime.Now + "_NA" );
+        ToLog("_0_ application version : " + Application.version);
         ToLog("_0_ screen size (w,h) _ " + Screen.width + " , " + Screen.height + "_NA");
         ToLog("_0_ mobile type _ " + SystemInfo.deviceModel + "_NA");
         ToLog("_0_ android version _ " + SystemInfo.operatingSystem + "_NA");

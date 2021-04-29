@@ -23,7 +23,6 @@ public class CalibrationController : MonoBehaviour
     private int _hapticDelayTemp = 0;
     private Stopwatch _zeit = new Stopwatch();
     private long _deltaFramesTime = 0;
-    private bool _playingStimuli = false;
     private string _pathSettingsHapticDelayFile;
     private bool _toggleMsg = false;
     private AudioSource _audioMicrophone;
@@ -34,14 +33,6 @@ public class CalibrationController : MonoBehaviour
     private readonly int _sampleRate = 44100;
     private float[] _dataAudioOriginal;
     private int _stage = 0;
-
-    private const int Vd = 0;  // vibrationDelay (ms): delay trying to synchronize audio and vibration pattern
-    private const int Vt = 50; // vibrationTime
-    private readonly List<long[]> _vibrationPatterns = new List<long[]>()
-    {
-        new long[] {Vd, Vt, Vt, Vt, Vt, Vt}, // 3 pulses
-    };
-
 
     private void Awake()
     {
@@ -58,7 +49,7 @@ public class CalibrationController : MonoBehaviour
         _pathSettingsHapticDelayFile = GetPathFile("SettingsHapticDelay.txt");
         btnAutoCalibration.onClick.AddListener(AutoCalibration);
         btnNext.onClick.AddListener(ClickOnNext);
-        
+
         _dataAudioOriginal = new float[beepSound.clip.samples];
         beepSound.clip.GetData(_dataAudioOriginal, 0);
         
@@ -74,9 +65,6 @@ public class CalibrationController : MonoBehaviour
         _audioMicrophone = GetComponent<AudioSource>();
         _audioMicrophone.loop = false;
         
-        // Initialize the plugin for vibrations
-        Vibration.Init();
-        
         _zeit.Start();
         
     }
@@ -85,16 +73,7 @@ public class CalibrationController : MonoBehaviour
     void Update()
     {
 #if UNITY_ANDROID
-        if (_playingStimuli)
-        {               
-            if (_zeit.ElapsedMilliseconds - _deltaFramesTime >= _hapticDelay)
-            {
-                Vibration.Vibrate(_vibrationPatterns[0], -1);
-                _deltaFramesTime = _zeit.ElapsedMilliseconds;
-                _playingStimuli = false;
-            }
-        }
-        else if (_calibratingStep == 1)
+        if (_calibratingStep == 1)
         {
             if (_kRecord < _nCalibrationRecs)
             {
@@ -231,6 +210,7 @@ public class CalibrationController : MonoBehaviour
                                        "\n\n5- Ve a la siguiente sección";
                 textVol.gameObject.SetActive(true);
                 btnAutoCalibration.gameObject.SetActive(true);
+                btnNext.interactable = false;
                 _stage =1;
                 break;
             
