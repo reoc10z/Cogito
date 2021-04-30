@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// #define ANDROID // comment this to emulate in unity editor
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
@@ -8,6 +10,7 @@ public class CalibrationController2 : MonoBehaviour
     public AudioSource backgroundSound;
     public Text textVol;
     public Text textWarning;
+    public Toggle toggleOk;
 
 #if UNITY_ANDROID
     private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
@@ -21,35 +24,67 @@ public class CalibrationController2 : MonoBehaviour
         btnNext.onClick.AddListener(ClickOnNext);
         btnNext.interactable = false;
     }
-    
-        
+
+    private bool _headsetPlugged = false;
+
     void Update()
     {
+        
 #if UNITY_ANDROID
         float vol = 100.0f * sound.GetSystemVolume();
-        textVol.text = "Volúmen: " + vol.ToString("0.00") + " %";
         
-        // test if headset is plugged
+        // test if headset is plugged        
         // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
         bool isHeadset = DetectHeadset.Detect();
+#else
+        float vol = 999.0f;
+        bool isHeadset = true;
+#endif
+        
+        textVol.text = "Volúmen: " + vol.ToString("0.00") + " %";
+
         if (isHeadset)
         {
             btnNext.interactable = true;
             textWarning.text = "";
+            // see previous stage for _headsetPlugged
+            if (!_headsetPlugged)
+            {
+                // if in previous update it was plugged, then start playing sound again
+                // sometimes it happened that after plugin headphones in and out, sound stopped
+                backgroundSound.Play();
+
+                // update stage for _headsetPlugged
+                _headsetPlugged = true;
+            }
         }
         else
         {
             btnNext.interactable = false;
             textWarning.text = "Ahora, mantén conectados tus audífonos de cable";
+            // see previous stage for _headsetPlugged
+            if (_headsetPlugged)
+            {
+                // if in previous update it was plugged, then start playing sound again
+                // sometimes it happened that after plugin headphones in and out, sound stopped
+                backgroundSound.Play();
+
+                // update stage for _headsetPlugged
+                _headsetPlugged = false;
+            }
         }
-#endif
     }
-    
     
     private void ClickOnNext()
     {
-        backgroundSound.Stop();
-        GoToNextScene();
+        bool instructionsDone = toggleOk.isOn;
+
+        if (instructionsDone)
+        {
+            backgroundSound.Stop();
+            GoToNextScene();
+        }
+        
     }
     
     private void GoToNextScene()

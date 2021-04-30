@@ -1,14 +1,18 @@
-﻿using System;
+﻿// #define ANDROID // comment this to emulate in unity editor
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using UnityEngine;
 using System.Diagnostics;
 using UnityEngine.UI;
 using System.IO;
 using System.Linq;
-#if PLATFORM_ANDROID
+#if UNITY_ANDROID
 using UnityEngine.Android;
 #endif
+
 
 public class CalibrationController : MonoBehaviour
 {
@@ -18,11 +22,15 @@ public class CalibrationController : MonoBehaviour
     public Text textInformation;
     public Button btnAutoCalibration;
     public Text textWarning;
+    public Toggle toggleOK;
     
 #if UNITY_ANDROID
     private AndroidNativeVolumeService sound = new AndroidNativeVolumeService();
+    private bool _microphPermission = false;
+#else
+    private bool _microphPermission = true;
 #endif
-    
+
     private GameObject dialog = null;
     private int _hapticDelay = 0;
     private int _hapticDelayTemp = 0;
@@ -43,7 +51,7 @@ public class CalibrationController : MonoBehaviour
     {
         textVol.gameObject.SetActive(false);
         btnAutoCalibration.gameObject.SetActive(false);
-        textWarning.gameObject.SetActive(false);
+        toggleOK.isOn = false;
     }
 
     // Start is called before the first frame update
@@ -59,7 +67,7 @@ public class CalibrationController : MonoBehaviour
         _dataAudioOriginal = new float[beepSound.clip.samples];
         beepSound.clip.GetData(_dataAudioOriginal, 0);
         
-#if PLATFORM_ANDROID
+#if UNITY_ANDROID 
         // ask permission to microphones access
         if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
         {
@@ -75,79 +83,106 @@ public class CalibrationController : MonoBehaviour
         
     }
     
-        
     void Update()
     {
+        switch (_stage)
+        {
+            case 0:
+                // stage for introduction to calibrating
 #if UNITY_ANDROID
-        if (_calibratingStep == 1)
-        {
-            if (_kRecord < _nCalibrationRecs)
-            {
-                if (_ready2Record)
+                if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
                 {
-                    _audioMicrophone.clip = Microphone.Start("", false, 1, _sampleRate);
-                    
-                    // play sound
-                    beepSound.Play();
-                    _ready2Record = false;
-                    _deltaFramesTime = _zeit.ElapsedMilliseconds; //timestamp
-                    ShowDelayValue("...calculando...");
-                }
-                else
-                {
-                    // when last recording finished, compute delay, then go to next recording
-                    if (Microphone.IsRecording("") == false)
-                    {
-                        float[] dataAudioRecorded = new float[_audioMicrophone.clip.samples];
-                        _audioMicrophone.clip.GetData(dataAudioRecorded, 0);
-                        int delay = ComputeAudioDelay(_dataAudioOriginal, dataAudioRecorded);
-                        print(delay);
-                        _hapticDelayTemp += delay;
-                        _ready2Record = true;
-                        _kRecord++;
-                    }
-                }
-            }
-            else
-            {
-                _audioMicrophone.clip = null;
-                _calibratingStep = 2;
-            }
-        } else if (_calibratingStep == 2)
-        {
-            _hapticDelay = -1*_hapticDelayTemp / _nCalibrationRecs;
-            // showing computed delay
-            ShowDelayValue( _hapticDelay.ToString() );
-            ActivatedButtons(true);
-            _calibratingStep = -1;
-        }
-        else
-        {
-            // test if headset is plugged
-            // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
-            bool isHeadset = DetectHeadset.Detect();
-            if (isHeadset)
-            {
-                textWarning.text = "¡Desconecta tus audífonos!";
-
-            }
-            else
-            {
-                float vol = 100.0f;
-#if UNITY_ANDROID
-                vol = 100.0f * sound.GetSystemVolume();
-#endif
-                if (vol < 90)
-                {
-                    textWarning.text = "Sube al máximo tu volúmen";
+                    textWarning.text = "Para continuar acepta los permisos del micrófono.";
+                    _microphPermission = false;
                 }
                 else
                 {
                     textWarning.text = "";
+                    _microphPermission = true;
                 }
-            }
-        }
 #endif
+                break;
+            
+            case 1:
+                // stage to calibrate
+                if (_calibratingStep == 1)
+                {
+                    if (_kRecord < _nCalibrationRecs)
+                    {
+                        if (_ready2Record)
+                        {
+                            _audioMicrophone.clip = Microphone.Start("", false, 1, _sampleRate);
+                    
+                            // play sound
+                            beepSound.Play();
+                            _ready2Record = false;
+                            _deltaFramesTime = _zeit.ElapsedMilliseconds; //timestamp
+                            ShowDelayValue("...calculando...");
+                        }
+                        else
+                        {
+                            // when last recording finished, compute delay, then go to next recording
+                            if (Microphone.IsRecording("") == false)
+                            {
+                                float[] dataAudioRecorded = new float[_audioMicrophone.clip.samples];
+                                _audioMicrophone.clip.GetData(dataAudioRecorded, 0);
+                                int delay = ComputeAudioDelay(_dataAudioOriginal, dataAudioRecorded);
+                                print(delay);
+                                _hapticDelayTemp += delay;
+                                _ready2Record = true;
+                                _kRecord++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _audioMicrophone.clip = null;
+                        _calibratingStep = 2;
+                    }
+                } else if (_calibratingStep == 2)
+                {
+                    _hapticDelay = -1*_hapticDelayTemp / _nCalibrationRecs;
+                    // showing computed delay
+                    ShowDelayValue( _hapticDelay.ToString() );
+                    ActivatedButtons(true);
+                    _calibratingStep = -1;
+                }
+                else
+                {
+#if UNITY_ANDROID
+                    // test if headset is plugged
+                    // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
+                    bool isHeadset = DetectHeadset.Detect();
+#else
+            bool isHeadset = false;
+#endif
+                    if (isHeadset)
+                    {
+                        textWarning.text = "¡Desconecta tus audífonos!";
+                    }
+                    else
+                    {
+                
+#if UNITY_ANDROID
+                        float vol = 100.0f * sound.GetSystemVolume();
+#else
+                float vol = 100.0f;
+#endif
+                
+                        if (vol < 90)
+                        {
+                            textWarning.text = "Sube al máximo tu volúmen";
+                        }
+                        else
+                        {
+                            textWarning.text = "";
+                        }
+                    }
+                }
+
+                break;
+
+        }
     }
     
     private void ShowDelayValue(string delay)
@@ -170,17 +205,25 @@ public class CalibrationController : MonoBehaviour
     
     private void AutoCalibration()
     {
+#if UNITY_ANDROID
         // Plugin for headset detection was downloaded from: https://github.com/DaVikingCode/UnityDetectHeadset
         bool isHeadset = DetectHeadset.Detect();
-        if (!isHeadset)
-        {
-            float vol = 100.0f;
-#if UNITY_ANDROID
-            vol = 100.0f * sound.GetSystemVolume();
+#else
+        bool isHeadset = false;
 #endif
+        
+        if (!isHeadset) // at this point we need loudspeakers
+        {
+            
+#if UNITY_ANDROID
+            float vol = 100.0f * sound.GetSystemVolume();
+#else
+            float vol = 100.0f;
+#endif
+            
             if (vol > 90)
             {
-                // do autocalibration just if loudspeakers is higher than 90%
+                // do autocalibration just if loudspeakers volume is higher than 90%
                 // block buttons
                 ActivatedButtons(false);
         
@@ -247,23 +290,40 @@ public class CalibrationController : MonoBehaviour
 
     private void ClickOnNext()
     {
+        bool instructionsDone = toggleOK.isOn;
+        
         switch (_stage)
         {
             case 0:
-                textInformation.text = "3- SIN AUDÍFONOS sube el volumen al máximo posible de tu celular." +
-                                       "\n\n4- Oprime Autocalibración, y en silencio espera 30 segundos." +
-                                       "\n\n5- Ve a la siguiente sección";
-                textVol.gameObject.SetActive(true);
-                textWarning.gameObject.SetActive(true);
-                btnAutoCalibration.gameObject.SetActive(true);
-                btnNext.interactable = false;
-                _stage =1;
+                if (_microphPermission && instructionsDone)
+                {
+                    textInformation.text = "3- SIN AUDÍFONOS sube el volumen al máximo posible de tu celular." +
+                                           "\n\n4- Oprime Autocalibración, y en silencio espera 30 segundos." +
+                                           "\n\n5- Ve a la siguiente sección";
+                    textVol.gameObject.SetActive(true);
+                    textWarning.gameObject.SetActive(true);
+                    btnAutoCalibration.gameObject.SetActive(true);
+                    btnNext.interactable = false;
+                    toggleOK.GetComponent<Toggle>().isOn = false;
+                    _stage = 1;
+                }
+                else
+                {
+#if UNITY_ANDROID 
+                    // ask for permission to microphones access
+                    Permission.RequestUserPermission(Permission.Microphone);
+                    dialog = new GameObject();
+#endif
+                }
                 break;
             
             case 1:
-                //write delay time into file
-                WriteFile(_pathSettingsHapticDelayFile, ""+_hapticDelay,"r");
-                GoToNextScene();
+                if (instructionsDone)
+                {
+                    //write delay time into file
+                    WriteFile(_pathSettingsHapticDelayFile, ""+_hapticDelay,"r");
+                    GoToNextScene();
+                }
                 break;
         }
     }
