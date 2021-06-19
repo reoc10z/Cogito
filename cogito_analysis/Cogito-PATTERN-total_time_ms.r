@@ -138,9 +138,20 @@ anovaAnalysis(level = 1, varY = "total_time_ms", data = in_data_pattern)
 # expecting. anova  with small p-value
 anovaAnalysis(level = 2, varY = "total_time_ms", data = in_data_pattern)
 
+####################
+########## non-parametric test: more info: https://www.statology.org/dunns-test-in-r/
 ##########
-# non-parametric Kruskal-wallis test
+# dependence test: non-parametric Kruskal-wallis test
 kruskal.test(total_time_ms ~ type_test , data = in_data_pattern[ in_data_pattern$level==2, ])
+
+#pairwise comparison: dunn test
+# install.packages('FSA')
+library(FSA)
+
+dunnTest(total_time_ms ~ type_test,
+         data = in_data_pattern[ in_data_pattern$level==2, ],
+         # method="bonferroni" # I will use the default value, website uses the bonferroni method (https://www.statology.org/dunns-test-in-r/)
+         )
 
 ##########
 
